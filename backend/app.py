@@ -2,24 +2,15 @@ import os
 import random
 import re
 from datetime import datetime, timedelta
-from pathlib import Path
 
 import pymysql
-from flask import Flask, jsonify, request, send_from_directory
-from flask_cors import CORS
+from flask import Flask, jsonify, request
 from flask_mail import Mail, Message
 from werkzeug.security import check_password_hash, generate_password_hash
 from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
-FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
-cors_origins = [
-    origin.strip()
-    for origin in os.getenv("CORS_ORIGINS", "*").split(",")
-    if origin.strip()
-]
-CORS(app, resources={r"/api/*": {"origins": cors_origins or "*"}})
 
 
 db_config = {
@@ -1213,21 +1204,6 @@ def get_user_history():
             ), 200
     finally:
         conn.close()
-
-
-@app.route("/", defaults={"frontend_path": "index.html"})
-@app.route("/<path:frontend_path>")
-def serve_frontend(frontend_path):
-    if frontend_path.startswith("api/"):
-        return jsonify({"error": "API route not found"}), 404
-
-    requested_path = FRONTEND_DIR / frontend_path
-    if requested_path.is_dir():
-        return send_from_directory(requested_path, "index.html")
-    if requested_path.is_file():
-        return send_from_directory(FRONTEND_DIR, frontend_path)
-
-    return send_from_directory(FRONTEND_DIR, "index.html")
 
 
 if __name__ == "__main__":
