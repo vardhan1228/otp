@@ -49,7 +49,7 @@ function stableImageLock(value) {
     return (hash * 31 + char.charCodeAt(0)) % 100000;
   }, 17) + 1;
 }
-const API_BASE = window.GOOGLE_STORE_API_BASE || localStorage.getItem('GOOGLE_STORE_API_BASE') || (location.hostname === 'localhost' || location.hostname === '127.0.0.1' ? 'http://localhost:5000/api' : '/api');
+const API_BASE = '/api';
 const USER_KEY = 'googleStoreUser';
 
 const body = document.body;
@@ -87,6 +87,12 @@ const viewToggle = document.getElementById('viewToggle');
 const themeToggle = document.getElementById('themeToggle');
 const toggleLazy = document.getElementById('toggleLazy');
 const clearSearch = document.getElementById('clearSearch');
+
+clearSearch.innerHTML = '&times;';
+viewToggle.innerHTML = '&#128257;';
+themeToggle.innerHTML = '&#9790;';
+cartBtn.childNodes[0].textContent = '';
+cartBtn.insertAdjacentHTML('afterbegin', '&#128722; ');
 
 pageTitle.textContent = category.charAt(0).toUpperCase() + category.slice(1);
 document.getElementById('year').textContent = new Date().getFullYear();

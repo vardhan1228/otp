@@ -49,7 +49,7 @@ function stableImageLock(value) {
     return (hash * 31 + char.charCodeAt(0)) % 100000;
   }, 17) + 1;
 }
-const API_BASE = window.GOOGLE_STORE_API_BASE || localStorage.getItem('GOOGLE_STORE_API_BASE') || (location.hostname === 'localhost' || location.hostname === '127.0.0.1' ? 'http://localhost:5000/api' : '/api');
+const API_BASE = '/api';
 const USER_KEY = 'googleStoreUser';
 const COMPUTER_IMAGE_FALLBACK = '../assets/home/computers.svg';
 
@@ -504,4 +504,3 @@ function debounce(fn, ms) {
     timer = setTimeout(() => fn(...args), ms);
   };
 }
-
