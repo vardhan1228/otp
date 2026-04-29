@@ -443,8 +443,12 @@ function initHero() {
   };
   heroName.textContent = product.name || 'Featured';
   heroPrice.textContent = product.price ? fmt(product.price) : '';
-  if (window.gsap) gsap.from('.hero-left .reveal', { y: 18, opacity: 0, duration: 0.8, stagger: 0.08 });
-  if (window.gsap) gsap.to('.p-layer', { y: -30, duration: 20, repeat: -1, yoyo: true, ease: 'sine.inOut' });
+  if (window.gsap && document.querySelector('.hero-left .reveal')) {
+    gsap.from('.hero-left .reveal', { y: 18, opacity: 0, duration: 0.8, stagger: 0.08 });
+  }
+  if (window.gsap && document.querySelector('.p-layer')) {
+    gsap.to('.p-layer', { y: -30, duration: 20, repeat: -1, yoyo: true, ease: 'sine.inOut' });
+  }
 }
 
 window.addEventListener('load', () => {

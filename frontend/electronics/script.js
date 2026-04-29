@@ -51,6 +51,7 @@ function stableImageLock(value) {
 }
 const API_BASE = '/api';
 const USER_KEY = 'googleStoreUser';
+const ELECTRONICS_IMAGE_FALLBACK = '../assets/home/electronics.svg';
 
 const body = document.body;
 const category = body.getAttribute('data-category') || 'electronics';
@@ -328,7 +329,7 @@ function renderCart() {
   cartItems.forEach(row => {
     const fallback = getById(row.product_id) || {};
     const name = row.product_name || fallback.name || 'Product';
-    const image = row.product_image || fallback.img || 'https://via.placeholder.com/120x120?text=Item';
+    const image = row.product_image || fallback.img || ELECTRONICS_IMAGE_FALLBACK;
     const price = Number(row.price || fallback.price || 0);
     const quantity = Number(row.quantity || 0);
     const subtotal = Number(row.subtotal || price * quantity);
@@ -422,11 +423,15 @@ function revealOnScroll() {
 
 function initHero() {
   const product = products[0] || {};
-  heroImage.src = product.img || 'https://via.placeholder.com/420x280';
+  heroImage.src = product.img || ELECTRONICS_IMAGE_FALLBACK;
   heroName.textContent = product.name || 'Featured';
   heroPrice.textContent = product.price ? fmt(product.price) : '';
-  if (window.gsap) gsap.from('.hero-left .reveal', { y: 18, opacity: 0, duration: 0.8, stagger: 0.08 });
-  if (window.gsap) gsap.to('.p-layer', { y: -30, duration: 20, repeat: -1, yoyo: true, ease: 'sine.inOut' });
+  if (window.gsap && document.querySelector('.hero-left .reveal')) {
+    gsap.from('.hero-left .reveal', { y: 18, opacity: 0, duration: 0.8, stagger: 0.08 });
+  }
+  if (window.gsap && document.querySelector('.p-layer')) {
+    gsap.to('.p-layer', { y: -30, duration: 20, repeat: -1, yoyo: true, ease: 'sine.inOut' });
+  }
 }
 
 window.addEventListener('load', () => {
