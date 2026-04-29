@@ -1,4 +1,4 @@
-﻿/* Shared product page interactions with DB-backed cart */
+/* Shared product page interactions with DB-backed cart */
 const catalog = {
   computers: [
     { id: 'c1', name: 'Pixelbook Go', price: 84999, img: 'https://pisces.bbystatic.com/image2/BestBuy_US/images/products/6382/6382914_sd.jpg', rating: 4.5, desc: 'Ultra-portable Chromebook.' },
@@ -49,8 +49,7 @@ function stableImageLock(value) {
     return (hash * 31 + char.charCodeAt(0)) % 100000;
   }, 17) + 1;
 }
-const SERVICE_API_QUEUE_KEY = "googleStoreApiQueue";
-const SERVICE_CART_CACHE_KEY = "googleStoreServiceCart";
+const API_BASE = '/api';
 const USER_KEY = 'googleStoreUser';
 const COMPUTER_IMAGE_FALLBACK = '../images/computers.svg';
 
@@ -124,107 +123,14 @@ function requireLoggedIn(action) {
   return '';
 }
 
-function getServiceName() {
-  if (typeof categoryKey !== "undefined") return categoryKey;
-  if (typeof category !== "undefined") return category;
-  return "service";
-}
-
-function getServiceCartKey(email) {
-  return `${email || "guest"}:${getServiceName()}`;
-}
-
-function readServiceCart(email) {
-  try {
-    const allCarts = JSON.parse(localStorage.getItem(SERVICE_CART_CACHE_KEY) || "{}");
-    return allCarts[getServiceCartKey(email)] || [];
-  } catch {
-    return [];
-  }
-}
-
-function writeServiceCart(email, items) {
-  let allCarts = {};
-  try {
-    allCarts = JSON.parse(localStorage.getItem(SERVICE_CART_CACHE_KEY) || "{}");
-  } catch {
-    allCarts = {};
-  }
-  allCarts[getServiceCartKey(email)] = items;
-  localStorage.setItem(SERVICE_CART_CACHE_KEY, JSON.stringify(allCarts));
-}
-
-function queueMainIndexRequest(path, options = {}) {
-  let queue = [];
-  try {
-    queue = JSON.parse(localStorage.getItem(SERVICE_API_QUEUE_KEY) || "[]");
-  } catch {
-    queue = [];
-  }
-  const rawBody = options.body || "{}";
-  const body = typeof rawBody === "string" ? JSON.parse(rawBody || "{}") : rawBody;
-  queue.push({
-    id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-    path,
-    method: options.method || "POST",
-    body,
-    source: getServiceName()
-  });
-  localStorage.setItem(SERVICE_API_QUEUE_KEY, JSON.stringify(queue));
-}
-
-function currentServiceEmail() {
-  if (typeof getCurrentUserEmail !== "undefined") return getCurrentUserEmail() || "";
-  if (typeof readCurrentUser !== "undefined") return readCurrentUser()?.email || "";
-  return "";
-}
-
-function readEmailFromCartPath(path) {
-  try {
-    const query = String(path).split("?")[1] || "";
-    return new URLSearchParams(query).get("email") || "";
-  } catch {
-    return "";
-  }
-}
-
 async function apiRequest(path, options = {}) {
-  const method = String(options.method || "GET").toUpperCase();
-  const rawBody = options.body || "{}";
-  const body = typeof rawBody === "string" ? JSON.parse(rawBody || "{}") : rawBody;
-  const email = body.email || readEmailFromCartPath(path) || currentServiceEmail();
-
-  if (method === "GET") {
-    if (String(path).startsWith("/cart")) return { items: readServiceCart(email) };
-    if (String(path).startsWith("/users/")) return { user: typeof readCurrentUser !== "undefined" ? readCurrentUser() : null };
-    return {};
-  }
-
-  if (String(path).startsWith("/cart/items")) {
-    const items = readServiceCart(email);
-    const index = items.findIndex((item) => item.product_id === body.product_id);
-    if (method === "DELETE" || (method === "PUT" && Number(body.quantity || 0) <= 0)) {
-      if (index >= 0) items.splice(index, 1);
-    } else if (index >= 0) {
-      items[index] = {
-        ...items[index],
-        ...body,
-        quantity: method === "POST" ? Number(items[index].quantity || 0) + Number(body.quantity || 1) : Number(body.quantity || 1),
-        subtotal: Number(body.price || items[index].price || 0) * (method === "POST" ? Number(items[index].quantity || 0) + Number(body.quantity || 1) : Number(body.quantity || 1))
-      };
-    } else {
-      items.push({ ...body, quantity: Number(body.quantity || 1), subtotal: Number(body.price || 0) * Number(body.quantity || 1) });
-    }
-    writeServiceCart(email, items);
-  }
-
-  queueMainIndexRequest(path, { ...options, method, body });
-
-  if (String(path).startsWith("/orders")) {
-    writeServiceCart(email, []);
-  }
-
-  return { message: "Queued for main index backend sync" };
+  const response = await fetch(`${API_BASE}${path}`, {
+    headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+    ...options
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error || 'Request failed');
+  return data;
 }
 
 function getById(id) {

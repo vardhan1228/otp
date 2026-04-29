@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -116,7 +116,8 @@
     }
 
     .navbar {
-      position: relative;
+      position: sticky;
+      top: 0;
       z-index: 40;
       backdrop-filter: blur(18px);
       background: rgba(247, 251, 255, 0.76);
@@ -909,85 +910,6 @@
       border-left: 4px solid var(--blue);
     }
 
-    .orders-panel {
-      width: min(var(--container), calc(100% - 32px));
-      margin: 24px auto 0;
-      border-radius: var(--radius-xl);
-      padding: 26px;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(245, 249, 255, 0.92));
-      border: 1px solid rgba(148, 163, 184, 0.16);
-      box-shadow: var(--shadow-soft);
-    }
-
-    .orders-panel-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      margin-bottom: 16px;
-    }
-
-    .orders-panel-header h3 {
-      margin: 0;
-      font-size: 24px;
-    }
-
-    .orders-panel-header p {
-      margin: 6px 0 0;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .orders-list-full {
-      display: grid;
-      gap: 14px;
-    }
-
-    .order-detail-card {
-      padding: 18px;
-      border-radius: 18px;
-      background: rgba(255, 255, 255, 0.9);
-      border: 1px solid rgba(148, 163, 184, 0.16);
-    }
-
-    .order-detail-top {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 14px;
-      margin-bottom: 12px;
-    }
-
-    .order-status-pill {
-      display: inline-flex;
-      align-items: center;
-      min-height: 28px;
-      padding: 5px 10px;
-      border-radius: 999px;
-      background: rgba(52, 168, 83, 0.12);
-      color: #137333;
-      font-size: 12px;
-      font-weight: 800;
-      text-transform: uppercase;
-    }
-
-    .order-items {
-      display: grid;
-      gap: 8px;
-      margin-top: 12px;
-    }
-
-    .order-item-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      background: rgba(248, 250, 252, 0.9);
-      color: var(--muted);
-      font-size: 13px;
-    }
-
     .student-focus-section {
       width: min(var(--container), calc(100% - 32px));
       margin: 26px auto 0;
@@ -1454,7 +1376,6 @@
     @media (max-width: 760px) {
       .container,
       .activity-shell,
-      .orders-panel,
       .student-focus-section,
       .footer {
         width: min(var(--container), calc(100% - 20px));
@@ -1464,7 +1385,6 @@
       .hero-visual,
       .featured-products-section,
       .student-focus-section,
-      .orders-panel,
       .activity-card,
       .story-strip {
         border-radius: 24px;
@@ -1473,7 +1393,6 @@
       .hero-copy,
       .featured-products-section,
       .student-focus-section,
-      .orders-panel,
       .activity-card,
       .story-strip,
       .auth-panel,
@@ -1692,7 +1611,8 @@
     }
 
     .navbar.marketplace-header {
-      position: relative;
+      position: sticky;
+      top: 0;
       z-index: 40;
       background: #fff;
       border-bottom: 1px solid #d9dde3;
@@ -1924,36 +1844,6 @@
       color: #b45309;
     }
 
-    .marketplace-categories .nav-pill:nth-child(15) .category-icon {
-      background: linear-gradient(135deg, #dbeafe, #cffafe);
-      color: #2563eb;
-    }
-
-    .marketplace-categories .nav-pill:nth-child(16) .category-icon {
-      background: linear-gradient(135deg, #ede9fe, #e0f2fe);
-      color: #4f46e5;
-    }
-
-    .marketplace-categories .nav-pill:nth-child(17) .category-icon {
-      background: linear-gradient(135deg, #cffafe, #dcfce7);
-      color: #0891b2;
-    }
-
-    .marketplace-categories .nav-pill:nth-child(18) .category-icon {
-      background: linear-gradient(135deg, #dbeafe, #dcfce7);
-      color: #1d4ed8;
-    }
-
-    .marketplace-categories .nav-pill:nth-child(19) .category-icon {
-      background: linear-gradient(135deg, #dcfce7, #fef9c3);
-      color: #16a34a;
-    }
-
-    .marketplace-categories .nav-pill:nth-child(20) .category-icon {
-      background: linear-gradient(135deg, #e0f2fe, #dbeafe);
-      color: #0284c7;
-    }
-
     .marketplace-categories .nav-pill.active {
       font-weight: 700;
     }
@@ -2011,11 +1901,7 @@
             <span>More</span>
             <span class="material-symbols-outlined expand-icon">expand_more</span>
           </button>
-          <button class="marketplace-action-button" id="navbar-orders-btn">
-            <span class="material-symbols-outlined">receipt_long</span>
-            <span>Orders</span>
-          </button>
-          <a class="marketplace-action" href="/mobiles">
+          <a class="marketplace-action" href="./mobiles/index.html">
             <span class="material-symbols-outlined">shopping_cart</span>
             <span>Cart</span>
           </a>
@@ -2036,81 +1922,57 @@
             <span class="category-icon"><span class="material-symbols-outlined">shopping_bag</span></span>
             <span>For You</span>
           </a>
-          <a href="/googleclothes" class="nav-pill" data-service-name="Fashion" data-service-path="/googleclothes">
+          <a href="./fashion/index.html" class="nav-pill">
             <span class="category-icon"><span class="material-symbols-outlined">checkroom</span></span>
             <span>Fashion</span>
           </a>
-          <a href="/mobiles" class="nav-pill" data-service-name="Mobiles" data-service-path="/mobiles">
+          <a href="./mobiles/index.html" class="nav-pill">
             <span class="category-icon"><span class="material-symbols-outlined">smartphone</span></span>
             <span>Mobiles</span>
           </a>
-          <a href="/beauty" class="nav-pill" data-service-name="Beauty" data-service-path="/beauty">
+          <a href="./beauty/index.html" class="nav-pill">
             <span class="category-icon"><span class="material-symbols-outlined">brush</span></span>
             <span>Beauty</span>
           </a>
-          <a href="/electronics" class="nav-pill" data-service-name="Electronics" data-service-path="/electronics">
+          <a href="./electronics/index.html" class="nav-pill">
             <span class="category-icon"><span class="material-symbols-outlined">devices</span></span>
             <span>Electronics</span>
           </a>
-          <a href="/home" class="nav-pill" data-service-name="Home" data-service-path="/home">
+          <a href="./home/index.html" class="nav-pill">
             <span class="category-icon"><span class="material-symbols-outlined">floor_lamp</span></span>
             <span>Home</span>
           </a>
-          <a href="/appliances" class="nav-pill" data-service-name="Appliances" data-service-path="/appliances">
+          <a href="./appliances/index.html" class="nav-pill">
             <span class="category-icon"><span class="material-symbols-outlined">desktop_windows</span></span>
             <span>Appliances</span>
           </a>
-          <a href="/toys" class="nav-pill" data-service-name="Toys Baby Kids" data-service-path="/toys">
+          <a href="./toys/index.html" class="nav-pill">
             <span class="category-icon"><span class="material-symbols-outlined">toys</span></span>
             <span>Toys, ba...</span>
           </a>
-          <a href="/food" class="nav-pill" data-service-name="Food Health" data-service-path="/food">
+          <a href="./food/index.html" class="nav-pill">
             <span class="category-icon"><span class="material-symbols-outlined">local_drink</span></span>
             <span>Food &amp; H...</span>
           </a>
-          <a href="/auto" class="nav-pill" data-service-name="Auto Accessories" data-service-path="/auto">
+          <a href="./auto/index.html" class="nav-pill">
             <span class="category-icon"><span class="material-symbols-outlined">wallet</span></span>
             <span>Auto Acc...</span>
           </a>
-          <a href="/two-wheelers" class="nav-pill" data-service-name="2 Wheelers" data-service-path="/two-wheelers">
+          <a href="./two-wheelers/index.html" class="nav-pill">
             <span class="category-icon"><span class="material-symbols-outlined">electric_moped</span></span>
             <span>2 Wheele...</span>
           </a>
-          <a href="/sports" class="nav-pill" data-service-name="Sports Fitness" data-service-path="/sports">
+          <a href="./sports/index.html" class="nav-pill">
             <span class="category-icon"><span class="material-symbols-outlined">sports_cricket</span></span>
             <span>Sports &amp; ...</span>
           </a>
-          <a href="/books" class="nav-pill" data-service-name="Books Stationery" data-service-path="/books">
+          <a href="./books/index.html" class="nav-pill">
             <span class="category-icon"><span class="material-symbols-outlined">menu_book</span></span>
             <span>Books &amp;...</span>
           </a>
-          <a href="/furniture" class="nav-pill" data-service-name="Furniture" data-service-path="/furniture">
+          <a href="./furniture/index.html" class="nav-pill">
             <span class="category-icon"><span class="material-symbols-outlined">chair</span></span>
             <span>Furniture</span>
-          </a>
-          <a href="/phones" class="nav-pill" data-service-name="Phones" data-service-path="/phones">
-            <span class="category-icon"><span class="material-symbols-outlined">phone_iphone</span></span>
-            <span>Phones</span>
-          </a>
-          <a href="/computers" class="nav-pill" data-service-name="Computers" data-service-path="/computers">
-            <span class="category-icon"><span class="material-symbols-outlined">computer</span></span>
-            <span>Computers</span>
-          </a>
-          <a href="/earphones" class="nav-pill" data-service-name="Earphones" data-service-path="/earphones">
-            <span class="category-icon"><span class="material-symbols-outlined">headphones</span></span>
-            <span>Earphones</span>
-          </a>
-          <a href="/googlepay" class="nav-pill" data-service-name="Google Pay" data-service-path="/googlepay">
-            <span class="category-icon"><span class="material-symbols-outlined">payments</span></span>
-            <span>Pay</span>
-          </a>
-          <a href="/googlegrocery" class="nav-pill" data-service-name="Grocery" data-service-path="/googlegrocery">
-            <span class="category-icon"><span class="material-symbols-outlined">local_grocery_store</span></span>
-            <span>Grocery</span>
-          </a>
-          <a href="/googlemusic" class="nav-pill" data-service-name="Music" data-service-path="/googlemusic">
-            <span class="category-icon"><span class="material-symbols-outlined">library_music</span></span>
-            <span>Music</span>
           </a>
         </nav>
       </div>
@@ -2208,7 +2070,7 @@
             <p class="hero-lead">A polished storefront for fashion, mobiles, beauty, electronics, home, appliances, toys, food, auto, two wheelers, sports, books, furniture, and payments - all connected through one OTP-secured experience.</p>
             <p class="hero-support">Built for clean demos: fast service entry, live activity tracking, shared cart flows, and a bright UI that looks ready for production.</p>
             <div class="hero-actions">
-              <a id="cta-button" href="/mobiles" class="cta-button">
+              <a id="cta-button" href="./mobiles/index.html" class="cta-button">
                 Start shopping
                 <span class="material-symbols-outlined">arrow_forward</span>
               </a>
@@ -2241,15 +2103,15 @@
                 <strong>Smart shopping flow</strong>
                 <span>Catalog, cart, checkout, and receipt journey.</span>
               </div>
-              <a class="showcase-card mini-card mini-blue" href="/appliances">
+              <a class="showcase-card mini-card mini-blue" href="./appliances/index.html">
                 <img src="https://loremflickr.com/520/380/home,appliances?lock=4101" alt="Appliances service" loading="lazy">
                 <span>Appliances</span>
               </a>
-              <a class="showcase-card mini-card mini-green" href="/home">
+              <a class="showcase-card mini-card mini-green" href="./home/index.html">
                 <img src="https://loremflickr.com/520/380/home,decor?lock=4102" alt="Home service" loading="lazy">
                 <span>Home</span>
               </a>
-              <a class="showcase-card mini-card mini-yellow" href="/electronics">
+              <a class="showcase-card mini-card mini-yellow" href="./electronics/index.html">
                 <img src="./images/electronics.svg" alt="Electronics service" loading="lazy">
                 <span>Electronics</span>
               </a>
@@ -2303,7 +2165,7 @@
               <div class="product-media"><img src="./images/fashion.svg" alt="Fashion service" loading="lazy"></div>
               <h3>Fashion</h3>
               <p>Dedicated fashion catalog with clothing, footwear, bags, cart, checkout, and order flow.</p>
-              <div class="product-meta"><span class="product-price">Style</span><a href="/fashion" class="card-link" data-service-name="Fashion" data-service-path="/fashion">Open</a></div>
+              <div class="product-meta"><span class="product-price">Style</span><a href="./fashion/index.html" class="card-link" data-service-name="Fashion" data-service-path="./fashion/index.html">Open</a></div>
             </article>
 
             <article class="product-card" style="--card-accent:rgba(66,133,244,0.22);">
@@ -2311,7 +2173,7 @@
               <div class="product-media"><img src="./images/phones.svg" alt="Mobiles service" loading="lazy"></div>
               <h3>Mobiles</h3>
               <p>Browse phones, watches, chargers, cases, and accessories in a separate mobile service.</p>
-              <div class="product-meta"><span class="product-price">Catalog</span><a href="/mobiles" class="card-link" data-service-name="Mobiles" data-service-path="/mobiles">Open</a></div>
+              <div class="product-meta"><span class="product-price">Catalog</span><a href="./mobiles/index.html" class="card-link" data-service-name="Mobiles" data-service-path="./mobiles/index.html">Open</a></div>
             </article>
 
             <article class="product-card" style="--card-accent:rgba(190,24,93,0.18);">
@@ -2319,7 +2181,7 @@
               <div class="product-media"><img src="https://loremflickr.com/520/380/beauty,skincare?lock=3131" alt="Beauty service" loading="lazy"></div>
               <h3>Beauty</h3>
               <p>Skincare, grooming, makeup, and personal care products with a complete shopping flow.</p>
-              <div class="product-meta"><span class="product-price">Care</span><a href="/beauty" class="card-link" data-service-name="Beauty" data-service-path="/beauty">Open</a></div>
+              <div class="product-meta"><span class="product-price">Care</span><a href="./beauty/index.html" class="card-link" data-service-name="Beauty" data-service-path="./beauty/index.html">Open</a></div>
             </article>
 
             <article class="product-card" style="--card-accent:rgba(26,115,232,0.16);">
@@ -2327,7 +2189,7 @@
               <div class="product-media"><img src="./images/electronics.svg" alt="Electronics service" loading="lazy"></div>
               <h3>Electronics</h3>
               <p>Smart devices, cameras, routers, speakers, and connected home products.</p>
-              <div class="product-meta"><span class="product-price">Devices</span><a href="/electronics" class="card-link" data-service-name="Electronics" data-service-path="/electronics">Open</a></div>
+              <div class="product-meta"><span class="product-price">Devices</span><a href="./electronics/index.html" class="card-link" data-service-name="Electronics" data-service-path="./electronics/index.html">Open</a></div>
             </article>
 
             <article class="product-card" style="--card-accent:rgba(202,138,4,0.18);">
@@ -2335,7 +2197,7 @@
               <div class="product-media"><img src="https://loremflickr.com/520/380/home,decor?lock=3132" alt="Home service" loading="lazy"></div>
               <h3>Home</h3>
               <p>Home decor, kitchen tools, bedding, lighting, storage, and daily living essentials.</p>
-              <div class="product-meta"><span class="product-price">Living</span><a href="/home" class="card-link" data-service-name="Home" data-service-path="/home">Open</a></div>
+              <div class="product-meta"><span class="product-price">Living</span><a href="./home/index.html" class="card-link" data-service-name="Home" data-service-path="./home/index.html">Open</a></div>
             </article>
 
             <article class="product-card" style="--card-accent:rgba(124,58,237,0.18);">
@@ -2343,7 +2205,7 @@
               <div class="product-media"><img src="https://loremflickr.com/520/380/home,appliances?lock=3133" alt="Appliances service" loading="lazy"></div>
               <h3>Appliances</h3>
               <p>Kitchen, cleaning, cooling, and utility appliances in their own service directory.</p>
-              <div class="product-meta"><span class="product-price">Utility</span><a href="/appliances" class="card-link" data-service-name="Appliances" data-service-path="/appliances">Open</a></div>
+              <div class="product-meta"><span class="product-price">Utility</span><a href="./appliances/index.html" class="card-link" data-service-name="Appliances" data-service-path="./appliances/index.html">Open</a></div>
             </article>
 
             <article class="product-card" style="--card-accent:rgba(220,38,38,0.18);">
@@ -2351,7 +2213,7 @@
               <div class="product-media"><img src="https://loremflickr.com/520/380/toys,kids?lock=3134" alt="Toys service" loading="lazy"></div>
               <h3>Toys, Baby &amp; Kids</h3>
               <p>Toys, baby care, learning kits, and kids products with cart and checkout.</p>
-              <div class="product-meta"><span class="product-price">Kids</span><a href="/toys" class="card-link" data-service-name="Toys Baby Kids" data-service-path="/toys">Open</a></div>
+              <div class="product-meta"><span class="product-price">Kids</span><a href="./toys/index.html" class="card-link" data-service-name="Toys Baby Kids" data-service-path="./toys/index.html">Open</a></div>
             </article>
 
             <article class="product-card" style="--card-accent:rgba(52,168,83,0.18);">
@@ -2359,7 +2221,7 @@
               <div class="product-media"><img src="./images/grocery.svg" alt="Food and health service" loading="lazy"></div>
               <h3>Food &amp; Health</h3>
               <p>Groceries, snacks, beverages, nutrition, and health items in a separate service.</p>
-              <div class="product-meta"><span class="product-price">Daily</span><a href="/food" class="card-link" data-service-name="Food Health" data-service-path="/food">Open</a></div>
+              <div class="product-meta"><span class="product-price">Daily</span><a href="./food/index.html" class="card-link" data-service-name="Food Health" data-service-path="./food/index.html">Open</a></div>
             </article>
 
             <article class="product-card" style="--card-accent:rgba(8,145,178,0.18);">
@@ -2367,7 +2229,7 @@
               <div class="product-media"><img src="https://loremflickr.com/520/380/car,accessories?lock=3135" alt="Auto accessories service" loading="lazy"></div>
               <h3>Auto Accessories</h3>
               <p>Car care, chargers, mounts, cameras, organizers, and travel accessories.</p>
-              <div class="product-meta"><span class="product-price">Auto</span><a href="/auto" class="card-link" data-service-name="Auto Accessories" data-service-path="/auto">Open</a></div>
+              <div class="product-meta"><span class="product-price">Auto</span><a href="./auto/index.html" class="card-link" data-service-name="Auto Accessories" data-service-path="./auto/index.html">Open</a></div>
             </article>
 
             <article class="product-card" style="--card-accent:rgba(234,88,12,0.18);">
@@ -2375,7 +2237,7 @@
               <div class="product-media"><img src="https://loremflickr.com/520/380/scooter,bike?lock=3136" alt="Two wheelers service" loading="lazy"></div>
               <h3>2 Wheelers</h3>
               <p>Scooters, helmets, bike covers, riding gear, EV chargers, and commuter essentials.</p>
-              <div class="product-meta"><span class="product-price">Ride</span><a href="/two-wheelers" class="card-link" data-service-name="2 Wheelers" data-service-path="/two-wheelers">Open</a></div>
+              <div class="product-meta"><span class="product-price">Ride</span><a href="./two-wheelers/index.html" class="card-link" data-service-name="2 Wheelers" data-service-path="./two-wheelers/index.html">Open</a></div>
             </article>
 
             <article class="product-card" style="--card-accent:rgba(21,128,61,0.18);">
@@ -2383,7 +2245,7 @@
               <div class="product-media"><img src="https://loremflickr.com/520/380/sports,fitness?lock=3137" alt="Sports service" loading="lazy"></div>
               <h3>Sports &amp; Fitness</h3>
               <p>Cricket, gym, yoga, running, outdoor, and fitness products with the same cart flow.</p>
-              <div class="product-meta"><span class="product-price">Fitness</span><a href="/sports" class="card-link" data-service-name="Sports Fitness" data-service-path="/sports">Open</a></div>
+              <div class="product-meta"><span class="product-price">Fitness</span><a href="./sports/index.html" class="card-link" data-service-name="Sports Fitness" data-service-path="./sports/index.html">Open</a></div>
             </article>
 
             <article class="product-card" style="--card-accent:rgba(147,51,234,0.18);">
@@ -2391,7 +2253,7 @@
               <div class="product-media"><img src="https://loremflickr.com/520/380/books,stationery?lock=3138" alt="Books service" loading="lazy"></div>
               <h3>Books &amp; Stationery</h3>
               <p>Books, notebooks, exam prep, office supplies, and student stationery.</p>
-              <div class="product-meta"><span class="product-price">Study</span><a href="/books" class="card-link" data-service-name="Books Stationery" data-service-path="/books">Open</a></div>
+              <div class="product-meta"><span class="product-price">Study</span><a href="./books/index.html" class="card-link" data-service-name="Books Stationery" data-service-path="./books/index.html">Open</a></div>
             </article>
 
             <article class="product-card" style="--card-accent:rgba(180,83,9,0.18);">
@@ -2399,7 +2261,7 @@
               <div class="product-media"><img src="https://loremflickr.com/520/380/furniture,chair?lock=3139" alt="Furniture service" loading="lazy"></div>
               <h3>Furniture</h3>
               <p>Chairs, desks, shelves, tables, wardrobes, and compact home setup products.</p>
-              <div class="product-meta"><span class="product-price">Home</span><a href="/furniture" class="card-link" data-service-name="Furniture" data-service-path="/furniture">Open</a></div>
+              <div class="product-meta"><span class="product-price">Home</span><a href="./furniture/index.html" class="card-link" data-service-name="Furniture" data-service-path="./furniture/index.html">Open</a></div>
             </article>
 
             <article class="product-card" style="--card-accent:rgba(66,133,244,0.2);">
@@ -2407,7 +2269,7 @@
               <div class="product-media"><img src="./images/pay.svg" alt="Google Pay" loading="lazy"></div>
               <h3>Google Pay</h3>
               <p>Complete payment and recharge work here, then review those records together on the dashboard below.</p>
-              <div class="product-meta"><span class="product-price">Module</span><a href="/googlepay" class="card-link" data-service-name="Google Pay" data-service-path="/googlepay">Open</a></div>
+              <div class="product-meta"><span class="product-price">Module</span><a href="./googlepay/index.html" class="card-link" data-service-name="Google Pay" data-service-path="./googlepay/index.html">Open</a></div>
             </article>
           </div>
         </section>
@@ -2464,21 +2326,6 @@
             </div>
           </div>
         </div>
-        <div class="orders-panel reveal" id="ordersPanel">
-          <div class="orders-panel-header">
-            <div>
-              <h3>All Orders</h3>
-              <p id="ordersPanelIntro">Login to load every order with status and item details.</p>
-            </div>
-            <button class="marketplace-action-button" id="refreshOrdersBtn" type="button">
-              <span class="material-symbols-outlined">refresh</span>
-              <span>Refresh</span>
-            </button>
-          </div>
-          <div class="orders-list-full" id="allOrdersList">
-            <div class="activity-empty">No orders yet.</div>
-          </div>
-        </div>
       </div>
     </section>
 
@@ -2515,7 +2362,6 @@
   <script>
     const API_BASE = "/api";
     const USER_KEY = "googleStoreUser";
-    const SERVICE_API_QUEUE_KEY = "googleStoreApiQueue";
     const LOGIN_EXPIRE_MINUTES = 60;
 
     let signupStep = 1;
@@ -2530,14 +2376,9 @@
     const navbarLogoutBtn = document.getElementById("navbarLogoutBtn");
     const navbarLoginBtn = document.getElementById("navbar-login-btn");
     const navbarSignupBtn = document.getElementById("navbar-signup-btn");
-    const navbarOrdersBtn = document.getElementById("navbar-orders-btn");
     const activityIntro = document.getElementById("activityIntro");
     const servicesList = document.getElementById("servicesList");
     const ordersList = document.getElementById("ordersList");
-    const allOrdersList = document.getElementById("allOrdersList");
-    const ordersPanel = document.getElementById("ordersPanel");
-    const ordersPanelIntro = document.getElementById("ordersPanelIntro");
-    const refreshOrdersBtn = document.getElementById("refreshOrdersBtn");
     const paymentsList = document.getElementById("paymentsList");
     const rechargesList = document.getElementById("rechargesList");
     const servicesCount = document.getElementById("servicesCount");
@@ -2568,7 +2409,6 @@
       isLoggedIn = true;
       saveUserSession({ username, email });
       loadUserHistory(email);
-      processQueuedServiceRequests();
     }
 
     function onUserLoggedOut() {
@@ -2593,16 +2433,6 @@
       container.innerHTML = items.slice(0, 5).map(renderer).join("");
     }
 
-    function escapeHtml(value) {
-      return String(value ?? "").replace(/[&<>'"]/g, (char) => ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        "'": "&#39;",
-        '"': "&quot;"
-      }[char]));
-    }
-
     function formatHistoryDate(value) {
       if (!value) return "Unknown date";
       const date = new Date(value);
@@ -2617,49 +2447,9 @@
     function resetActivityLists() {
       renderActivityList(servicesList, [], "No service activity yet.", () => "");
       renderActivityList(ordersList, [], "No orders yet.", () => "");
-      renderAllOrders([]);
       renderActivityList(paymentsList, [], "No payments yet.", () => "");
       renderActivityList(rechargesList, [], "No recharges yet.", () => "");
       updateDashboardCounts({});
-    }
-
-    function renderAllOrders(orders = []) {
-      if (!allOrdersList) return;
-      if (!orders.length) {
-        allOrdersList.innerHTML = `<div class="activity-empty">No orders yet.</div>`;
-        if (ordersPanelIntro) ordersPanelIntro.textContent = "No order records found for this account.";
-        return;
-      }
-
-      if (ordersPanelIntro) ordersPanelIntro.textContent = `${orders.length} order(s) loaded with status and item details.`;
-      allOrdersList.innerHTML = orders.map((order) => {
-        const items = order.items || [];
-        const itemsHtml = items.length
-          ? items.map((item) => `
-              <div class="order-item-row">
-                <span>${escapeHtml(item.product_name || "Product")} x ${Number(item.quantity || 0)}</span>
-                <strong>Rs. ${Number(item.subtotal || 0).toLocaleString("en-IN")}</strong>
-              </div>
-            `).join("")
-          : `<div class="activity-empty">No item details saved.</div>`;
-
-        return `
-          <div class="order-detail-card">
-            <div class="order-detail-top">
-              <div>
-                <strong>Order #${escapeHtml(order.id)} - Rs. ${Number(order.total_amount || 0).toLocaleString("en-IN")}</strong>
-                <div class="activity-meta">${formatHistoryDate(order.created_at)}</div>
-              </div>
-              <span class="order-status-pill">${escapeHtml(order.status || "placed")}</span>
-            </div>
-            <div class="activity-meta"><strong>Name:</strong> ${escapeHtml(order.shipping_name || "Customer")}</div>
-            <div class="activity-meta"><strong>Email:</strong> ${escapeHtml(order.shipping_email || "")}</div>
-            <div class="activity-meta"><strong>Phone:</strong> ${escapeHtml(order.shipping_phone || "Not provided")}</div>
-            <div class="activity-meta"><strong>Address:</strong> ${escapeHtml(order.shipping_address || "No shipping address saved")}</div>
-            <div class="order-items">${itemsHtml}</div>
-          </div>
-        `;
-      }).join("");
     }
 
     function updateDashboardCounts(history) {
@@ -2685,7 +2475,6 @@
         }
 
         updateDashboardCounts(data);
-        renderAllOrders(data.orders || []);
 
         renderActivityList(
           servicesList,
@@ -2745,63 +2534,6 @@
       }
     }
 
-    async function mainApiRequest(path, options = {}) {
-      const response = await fetch(`${API_BASE}${path}`, {
-        headers: { "Content-Type": "application/json", ...(options.headers || {}) },
-        ...options
-      });
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data.error || "Request failed");
-      return data;
-    }
-
-    function readQueuedServiceRequests() {
-      try {
-        const parsed = JSON.parse(localStorage.getItem(SERVICE_API_QUEUE_KEY) || "[]");
-        return Array.isArray(parsed) ? parsed : [];
-      } catch {
-        return [];
-      }
-    }
-
-    function writeQueuedServiceRequests(requests) {
-      localStorage.setItem(SERVICE_API_QUEUE_KEY, JSON.stringify(requests));
-    }
-
-    async function processQueuedServiceRequests() {
-      const user = loadUserSession();
-      const requests = readQueuedServiceRequests();
-      if (!user?.email || !requests.length) return;
-
-      const remaining = [];
-      let syncedCount = 0;
-
-      for (const request of requests) {
-        const body = typeof request.body === "string" ? JSON.parse(request.body || "{}") : (request.body || {});
-        if (body.email && body.email !== user.email) {
-          remaining.push(request);
-          continue;
-        }
-
-        try {
-          await mainApiRequest(request.path, {
-            method: request.method || "POST",
-            body: JSON.stringify({ ...body, email: body.email || user.email })
-          });
-          syncedCount += 1;
-        } catch (error) {
-          remaining.push(request);
-          console.error("Queued service sync failed", error);
-        }
-      }
-
-      writeQueuedServiceRequests(remaining);
-      if (syncedCount) {
-        showMessage(`${syncedCount} service action(s) synced through the main page.`, "success");
-        loadUserHistory(user.email);
-      }
-    }
-
     function trackServiceActivity(serviceName, servicePath) {
       const user = loadUserSession();
       if (!user?.email || !serviceName) return;
@@ -2821,7 +2553,7 @@
     }
 
     function initServiceTracking() {
-      document.querySelectorAll("a[data-service-name]").forEach((link) => {
+      document.querySelectorAll(".card-link[data-service-name]").forEach((link) => {
         link.addEventListener("click", () => {
           trackServiceActivity(link.dataset.serviceName, link.dataset.servicePath || link.getAttribute("href"));
         });
@@ -2832,31 +2564,9 @@
       const link = target.closest("a");
       if (!link) return null;
       const href = link.getAttribute("href") || "";
-      const serviceRoutes = new Set([
-        "/fashion",
-        "/mobiles",
-        "/beauty",
-        "/electronics",
-        "/home",
-        "/appliances",
-        "/toys",
-        "/food",
-        "/auto",
-        "/two-wheelers",
-        "/sports",
-        "/books",
-        "/furniture",
-        "/googlepay",
-        "/phones",
-        "/computers",
-        "/earphones",
-        "/googleclothes",
-        "/googlegrocery",
-        "/googlemusic"
-      ]);
       const isServiceCard = link.matches(".card-link[data-service-name]");
-      const isTopServiceNav = link.matches(".nav-pill") && serviceRoutes.has(href);
-      const isHeroServiceCta = link.matches("#cta-button") && serviceRoutes.has(href);
+      const isTopServiceNav = link.matches(".nav-pill") && href.includes("/index.html");
+      const isHeroServiceCta = link.matches("#cta-button") && href.includes("/index.html");
       return isServiceCard || isTopServiceNav || isHeroServiceCta ? link : null;
     }
 
@@ -3183,22 +2893,6 @@
         animateAuthOpen(navbarSignupBtn);
         openAuthModal("signup");
         return false;
-      };
-      if (navbarOrdersBtn) navbarOrdersBtn.onclick = () => {
-        const user = loadUserSession();
-        if (!user?.email) {
-          showMessage("Please login to view your orders.", "error");
-          animateAuthOpen(navbarOrdersBtn);
-          openAuthModal("login");
-          return false;
-        }
-        loadUserHistory(user.email);
-        ordersPanel?.scrollIntoView({ behavior: "smooth", block: "start" });
-        return false;
-      };
-      if (refreshOrdersBtn) refreshOrdersBtn.onclick = () => {
-        const user = loadUserSession();
-        if (user?.email) loadUserHistory(user.email);
       };
       if (navbarLogoutBtn) navbarLogoutBtn.onclick = () => logout();
 

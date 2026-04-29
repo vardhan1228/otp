@@ -44,8 +44,9 @@ textarea {
 }
 
 .topbar {
-  position: relative;
-z-index: 20;
+  position: sticky;
+  top: 0;
+  z-index: 20;
   background: var(--surface);
   border-bottom: 1px solid var(--line);
   box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
@@ -449,42 +450,6 @@ h1 {
   min-height: 82px;
 }
 
-
-.payment-panel {
-  display: grid;
-  grid-template-columns: 150px 1fr;
-  gap: 14px;
-  align-items: center;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 12px;
-  background: #f8fafc;
-}
-
-.payment-panel img {
-  width: 150px;
-  height: 150px;
-  object-fit: contain;
-  background: #fff;
-  border-radius: 8px;
-  border: 1px solid var(--line);
-}
-
-.payment-panel input {
-  margin-top: 8px;
-  text-align: center;
-  font-weight: 700;
-}
-
-@media (max-width: 560px) {
-  .payment-panel {
-    grid-template-columns: 1fr;
-    text-align: center;
-  }
-  .payment-panel img {
-    margin: 0 auto;
-  }
-}
 .payment-tabs {
   display: flex;
   flex-wrap: wrap;
@@ -492,44 +457,6 @@ h1 {
   margin: 14px 0;
 }
 
-
-.receipt-panel {
-  display: none;
-  margin-top: 14px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 14px;
-  background: #f8fafc;
-}
-
-.receipt-panel.open {
-  display: block;
-}
-
-.receipt-panel h3 {
-  margin: 0 0 8px;
-  color: #166534;
-}
-
-.receipt-panel table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-  font-size: 13px;
-}
-
-.receipt-panel th,
-.receipt-panel td {
-  padding: 7px;
-  border-bottom: 1px solid var(--line);
-  text-align: left;
-}
-
-.receipt-panel .receipt-total {
-  margin-top: 12px;
-  font-weight: 900;
-  text-align: right;
-}
 .notice {
   margin-top: 12px;
   padding: 12px;
@@ -657,24 +584,14 @@ h1 {
           <option>Net Banking</option>
           <option>Cash on Delivery</option>
         </select>
-        <div class="payment-panel">
-          <img src="../googlepay/scan.jpg" alt="UPI payment QR scanner">
-          <div>
-            <strong>Scan and pay with UPI</strong>
-            <p style="margin:6px 0 0;color:#64748b;line-height:1.45;">Use any UPI app to scan the code, or copy the UPI ID before placing the order.</p>
-            <input type="text" value="multicloud-veera-sir@kotak811" readonly onclick="this.select()">
-          </div>
-        </div>
         <button class="btn primary" type="submit">Place order</button>
       </form>
       <div class="notice" id="notice"></div>
-      <div class="receipt-panel" id="receiptPanel"></div>
     </div>
   </div>
 
   <script>
-const SERVICE_API_QUEUE_KEY = "googleStoreApiQueue";
-const SERVICE_CART_CACHE_KEY = "googleStoreServiceCart";
+const API_BASE = "/api";
 const USER_KEY = "googleStoreUser";
 
 const catalogs = {
@@ -912,9 +829,7 @@ let products = service.products.map((item, index) => ({
   rating: (4 + ((index % 5) * 0.15)).toFixed(1)
 }));
 let filteredProducts = products.slice();
-let cart = {};
-let cartItems = [];
-let latestReceiptOrder = null;
+let cart = readLocalCart();
 
 const searchInput = document.getElementById("searchInput");
 const sortSelect = document.getElementById("sortSelect");
@@ -944,154 +859,35 @@ function readCurrentUser() {
   }
 }
 
-function requireLoggedIn(action) {
-  const user = readCurrentUser();
-  if (user?.email) return user.email;
-  alert(`Please login on the home page before you ${action}.`);
-  return "";
-}
-
-function getServiceName() {
-  if (typeof categoryKey !== "undefined") return categoryKey;
-  if (typeof category !== "undefined") return category;
-  return "service";
-}
-
-function getServiceCartKey(email) {
-  return `${email || "guest"}:${getServiceName()}`;
-}
-
-function readServiceCart(email) {
+function readLocalCart() {
   try {
-    const allCarts = JSON.parse(localStorage.getItem(SERVICE_CART_CACHE_KEY) || "{}");
-    return allCarts[getServiceCartKey(email)] || [];
+    return JSON.parse(localStorage.getItem(`serviceCart:${categoryKey}`) || "{}");
   } catch {
-    return [];
+    return {};
   }
 }
 
-function writeServiceCart(email, items) {
-  let allCarts = {};
-  try {
-    allCarts = JSON.parse(localStorage.getItem(SERVICE_CART_CACHE_KEY) || "{}");
-  } catch {
-    allCarts = {};
-  }
-  allCarts[getServiceCartKey(email)] = items;
-  localStorage.setItem(SERVICE_CART_CACHE_KEY, JSON.stringify(allCarts));
-}
-
-function queueMainIndexRequest(path, options = {}) {
-  let queue = [];
-  try {
-    queue = JSON.parse(localStorage.getItem(SERVICE_API_QUEUE_KEY) || "[]");
-  } catch {
-    queue = [];
-  }
-  const rawBody = options.body || "{}";
-  const body = typeof rawBody === "string" ? JSON.parse(rawBody || "{}") : rawBody;
-  queue.push({
-    id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-    path,
-    method: options.method || "POST",
-    body,
-    source: getServiceName()
-  });
-  localStorage.setItem(SERVICE_API_QUEUE_KEY, JSON.stringify(queue));
-}
-
-function readEmailFromCartPath(path) {
-  try {
-    const query = String(path).split("?")[1] || "";
-    return new URLSearchParams(query).get("email") || "";
-  } catch {
-    return "";
-  }
-}
-
-function currentServiceEmail() {
-  if (typeof getCurrentUserEmail !== "undefined") return getCurrentUserEmail() || "";
-  if (typeof readCurrentUser !== "undefined") return readCurrentUser()?.email || "";
-  return "";
+function saveLocalCart() {
+  localStorage.setItem(`serviceCart:${categoryKey}`, JSON.stringify(cart));
 }
 
 async function apiRequest(path, options = {}) {
-  const method = String(options.method || "GET").toUpperCase();
-  const rawBody = options.body || "{}";
-  const body = typeof rawBody === "string" ? JSON.parse(rawBody || "{}") : rawBody;
-  const email = body.email || readEmailFromCartPath(path) || currentServiceEmail();
-
-  if (method === "GET") {
-    if (String(path).startsWith("/cart")) return { items: readServiceCart(email) };
-    if (String(path).startsWith("/users/")) return { user: typeof readCurrentUser !== "undefined" ? readCurrentUser() : null };
-    return {};
-  }
-
-  if (String(path).startsWith("/cart/items")) {
-    const items = readServiceCart(email);
-    const index = items.findIndex((item) => item.product_id === body.product_id);
-    if (method === "DELETE" || (method === "PUT" && Number(body.quantity || 0) <= 0)) {
-      if (index >= 0) items.splice(index, 1);
-    } else if (index >= 0) {
-      const quantity = method === "POST" ? Number(items[index].quantity || 0) + Number(body.quantity || 1) : Number(body.quantity || 1);
-      const price = Number(body.price || items[index].price || 0);
-      items[index] = { ...items[index], ...body, quantity, subtotal: price * quantity };
-    } else {
-      const quantity = Number(body.quantity || 1);
-      items.push({ ...body, quantity, subtotal: Number(body.price || 0) * quantity });
-    }
-    writeServiceCart(email, items);
-  }
-
-  queueMainIndexRequest(path, { ...options, method, body });
-
-  if (String(path).startsWith("/orders")) {
-    writeServiceCart(email, []);
-  }
-
-  return { message: "Queued for main index backend sync" };
-}
-function syncCartState(items) {
-  cartItems = items || [];
-  cart = {};
-  cartItems.forEach((item) => {
-    cart[item.product_id] = Number(item.quantity || 0);
+  const response = await fetch(`${API_BASE}${path}`, {
+    headers: { "Content-Type": "application/json", ...(options.headers || {}) },
+    ...options
   });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error || "Request failed");
+  return data;
 }
 
 function getCartRows() {
-  return cartItems
-    .map((item) => {
-      const product = products.find((product) => product.id === item.product_id) || {};
-      const price = Number(item.price || product.price || 0);
-      const quantity = Number(item.quantity || 0);
-      return {
-        id: item.product_id,
-        name: item.product_name || product.name || "Product",
-        price,
-        desc: item.product_description || product.desc || "",
-        image: item.product_image || product.image || service.hero,
-        quantity,
-        subtotal: Number(item.subtotal || price * quantity)
-      };
+  return Object.entries(cart)
+    .map(([id, quantity]) => {
+      const product = products.find((item) => item.id === id);
+      return product ? { ...product, quantity, subtotal: product.price * quantity } : null;
     })
-    .filter((item) => item.quantity > 0);
-}
-
-async function refreshCartFromServer() {
-  const user = readCurrentUser();
-  if (!user?.email) {
-    syncCartState([]);
-    renderCart();
-    return;
-  }
-  try {
-    const data = await apiRequest(`/cart?email=${encodeURIComponent(user.email)}`);
-    syncCartState(data.items || []);
-    renderCart();
-  } catch (error) {
-    console.error("Cart load failed", error);
-  }
+    .filter(Boolean);
 }
 
 function setTheme() {
@@ -1166,61 +962,23 @@ function renderCart() {
   cartList.querySelectorAll("[data-remove]").forEach((button) => button.addEventListener("click", () => removeFromCart(button.dataset.remove)));
 }
 
-async function addToCart(id) {
-  const email = requireLoggedIn("add items to cart");
-  if (!email) return;
-  const product = products.find((item) => item.id === id);
-  if (!product) return;
-  try {
-    await apiRequest("/cart/items", {
-      method: "POST",
-      body: JSON.stringify({
-        email,
-        product_id: product.id,
-        product_name: product.name,
-        product_image: product.image,
-        product_description: product.desc,
-        price: product.price,
-        quantity: 1
-      })
-    });
-    await refreshCartFromServer();
-  } catch (error) {
-    alert(error.message || "Unable to add item to cart");
-  }
+function addToCart(id) {
+  cart[id] = (cart[id] || 0) + 1;
+  saveLocalCart();
+  renderCart();
 }
 
-async function changeQty(id, delta) {
-  const user = readCurrentUser();
-  if (!user?.email) return;
-  const nextQuantity = (cart[id] || 0) + delta;
-  try {
-    if (nextQuantity <= 0) {
-      await removeFromCart(id);
-      return;
-    }
-    await apiRequest("/cart/items", {
-      method: "PUT",
-      body: JSON.stringify({ email: user.email, product_id: id, quantity: nextQuantity })
-    });
-    await refreshCartFromServer();
-  } catch (error) {
-    alert(error.message || "Unable to update cart");
-  }
+function changeQty(id, delta) {
+  cart[id] = (cart[id] || 0) + delta;
+  if (cart[id] <= 0) delete cart[id];
+  saveLocalCart();
+  renderCart();
 }
 
-async function removeFromCart(id) {
-  const user = readCurrentUser();
-  if (!user?.email) return;
-  try {
-    await apiRequest("/cart/items", {
-      method: "DELETE",
-      body: JSON.stringify({ email: user.email, product_id: id })
-    });
-    await refreshCartFromServer();
-  } catch (error) {
-    alert(error.message || "Unable to remove item");
-  }
+function removeFromCart(id) {
+  delete cart[id];
+  saveLocalCart();
+  renderCart();
 }
 
 function applyFilters() {
@@ -1232,94 +990,6 @@ function applyFilters() {
   renderProducts();
 }
 
-function escapeHtml(value) {
-  return String(value ?? "").replace(/[&<>'"]/g, (char) => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    "'": "&#39;",
-    '"': "&quot;"
-  }[char]));
-}
-
-function getReceiptText(order) {
-  if (!order) return "";
-  const lines = [
-    `Google Store Receipt - Order #${order.id}`,
-    "-------------------------------------",
-    `Date: ${order.created_at || new Date().toLocaleString()}`,
-    `Name: ${order.shipping_name || "Customer"}`,
-    `Email: ${order.shipping_email || ""}`,
-    `Mobile: ${order.shipping_phone || "Not provided"}`,
-    `Address: ${order.shipping_address || ""}`,
-    "",
-    "Products Purchased:"
-  ];
-  (order.items || []).forEach((item) => {
-    lines.push(`- ${item.product_name || "Product"} | Qty: ${item.quantity || 0} | Price: Rs. ${Number(item.price || 0).toLocaleString("en-IN")} | Subtotal: Rs. ${Number(item.subtotal || 0).toLocaleString("en-IN")}`);
-  });
-  if (!(order.items || []).length) lines.push("- No item details found");
-  lines.push("-------------------------------------");
-  lines.push(`Total Paid: Rs. ${Number(order.total_amount || 0).toLocaleString("en-IN")}`);
-  lines.push(`Status: ${order.status || "placed"}`);
-  lines.push("Payment Successful");
-  return lines.join("\n");
-}
-
-function viewReceipt() {
-  if (!latestReceiptOrder) return;
-  const receiptWindow = window.open("", "_blank", "width=760,height=760");
-  if (!receiptWindow) return;
-  receiptWindow.document.write(`
-    <title>Google Store Receipt</title>
-    <pre style="font-family:Arial,sans-serif;white-space:pre-wrap;max-width:720px;margin:24px auto;padding:24px;border:1px solid #e5e7eb;border-radius:12px;line-height:1.6;">${escapeHtml(getReceiptText(latestReceiptOrder))}</pre>
-  `);
-  receiptWindow.document.close();
-}
-
-function downloadReceipt() {
-  if (!latestReceiptOrder) return;
-  const blob = new Blob([getReceiptText(latestReceiptOrder)], { type: "text/plain" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = `GoogleStore_Receipt_${latestReceiptOrder.id || Date.now()}.txt`;
-  document.body.appendChild(link);
-  link.click();
-  setTimeout(() => {
-    URL.revokeObjectURL(link.href);
-    link.remove();
-  }, 100);
-}
-function renderReceipt(order, response = {}) {
-  const receiptPanel = document.getElementById("receiptPanel");
-  if (!receiptPanel || !order) return;
-  const itemRows = (order.items || []).map((item) => `
-    <tr>
-      <td>${escapeHtml(item.product_name)}</td>
-      <td>${Number(item.quantity || 0)}</td>
-      <td>Rs. ${Number(item.price || 0).toLocaleString("en-IN")}</td>
-      <td>Rs. ${Number(item.subtotal || 0).toLocaleString("en-IN")}</td>
-    </tr>
-  `).join("");
-  receiptPanel.innerHTML = `
-    <h3>Payment Successful</h3>
-    <p><strong>Order:</strong> #${escapeHtml(order.id)}<br>
-    <strong>Date:</strong> ${escapeHtml(order.created_at)}<br>
-    <strong>Email:</strong> ${escapeHtml(order.shipping_email)}<br>
-    <strong>Mobile:</strong> ${escapeHtml(order.shipping_phone || "")}</p>
-    <table>
-      <thead><tr><th>Product</th><th>Qty</th><th>Price</th><th>Subtotal</th></tr></thead>
-      <tbody>${itemRows || '<tr><td colspan="4">No items found</td></tr>'}</tbody>
-    </table>
-    <div class="receipt-total">Total Paid: Rs. ${Number(order.total_amount || 0).toLocaleString("en-IN")}</div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;margin-top:12px;">
-      <button class="btn primary" type="button" onclick="viewReceipt()">View Receipt</button>
-      <button class="btn ghost" type="button" onclick="downloadReceipt()">Download Receipt</button>
-    </div>
-    <p style="margin-bottom:0;color:#64748b;">${escapeHtml(response.email_message || "Receipt email is being sent.")}</p>
-  `;
-  receiptPanel.classList.add("open");
-}
 function showNotice(message, isError = false) {
   notice.textContent = message;
   notice.className = isError ? "notice error" : "notice";
@@ -1361,17 +1031,29 @@ async function submitCheckout(event) {
 
   try {
     const user = readCurrentUser();
-    if (!user?.email || customer.email !== user.email) {
-      throw new Error("Please checkout with the same email you used to login.");
+    if (user?.email && customer.email === user.email) {
+      for (const row of rows) {
+        await apiRequest("/cart/items", {
+          method: "POST",
+          body: JSON.stringify({
+            email: customer.email,
+            product_id: row.id,
+            product_name: row.name,
+            product_image: row.image,
+            product_description: row.desc,
+            price: row.price,
+            quantity: row.quantity
+          })
+        });
+      }
+      await apiRequest("/orders", {
+        method: "POST",
+        body: JSON.stringify(customer)
+      });
     }
-    if (!rows.length) {
-      throw new Error("Your cart is empty.");
-    }
-    await apiRequest("/orders", {
-      method: "POST",
-      body: JSON.stringify(customer)
-    });
-    await refreshCartFromServer();
+    cart = {};
+    saveLocalCart();
+    renderCart();
     showNotice("Order placed successfully. Receipt has been generated in the demo flow.");
     checkoutForm.reset();
   } catch (error) {
@@ -1383,7 +1065,6 @@ document.addEventListener("DOMContentLoaded", () => {
   setTheme();
   renderProducts();
   renderCart();
-  refreshCartFromServer();
 
   searchInput.addEventListener("input", applyFilters);
   sortSelect.addEventListener("change", applyFilters);
@@ -1401,15 +1082,5 @@ document.addEventListener("DOMContentLoaded", () => {
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
 
 

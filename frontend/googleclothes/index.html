@@ -67,7 +67,7 @@ body {
 
 .navbar {
     box-shadow: 0 5px 4px rgb(146 161 176 / 15%);
-    position: relative;
+    position: sticky;
     top: 0;
     background: var(--white);
     color: var(--black);
@@ -2614,8 +2614,24 @@ iframe {
 }
 </style>
             <script>
+            // Utility function for fetching IP (IPv4)
             async function fetchUserIP() {
-                return "#local";
+                try {
+                    // Primary: ipinfo.io Free API, fallback to Cloudflare
+                    const r1 = await fetch("https://ipinfo.io/json?token=YOUR_TOKEN_HERE");
+                    if (r1.ok) {
+                        const data = await r1.json();
+                        if (data.ip) return data.ip;
+                    }
+                } catch(e){}
+                // Fallback using Cloudflare trace
+                try {
+                    const r2 = await fetch("https://www.cloudflare.com/cdn-cgi/trace");
+                    const text = await r2.text();
+                    const match = text.match(/ip=([\d\.]+)/);
+                    if (match) return match[1];
+                } catch(e){}
+                return "#unknown";
             }
 
             document.addEventListener('DOMContentLoaded', function() {

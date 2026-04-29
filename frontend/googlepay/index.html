@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -44,8 +44,9 @@
             background: var(--gradient);
             color: white;
             padding: 1rem 0;
-            position: relative;
+            position: fixed;
             width: 100%;
+            top: 0;
             z-index: 1000;
             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
@@ -409,34 +410,6 @@
             padding-top: 1rem;
             margin-top: 1rem;
         }
-        .scanner-payment {
-            display: grid;
-            grid-template-columns: minmax(160px, 220px) 1fr;
-            gap: 1rem;
-            align-items: center;
-            background: var(--light);
-            border-radius: 12px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-        }
-        .scanner-payment img {
-            width: 100%;
-            aspect-ratio: 1;
-            object-fit: contain;
-            background: white;
-            border-radius: 10px;
-            padding: 0.75rem;
-            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
-        }
-        .scanner-payment h4 {
-            margin: 0 0 0.35rem;
-            color: var(--dark);
-        }
-        .scanner-payment p {
-            margin: 0;
-            color: var(--gray);
-            line-height: 1.5;
-        }
         /* Features */
         .features {
             padding: 5rem 2rem;
@@ -565,14 +538,6 @@
         }
         /* Responsive */
         @media (max-width: 768px) {
-            .scanner-payment {
-                grid-template-columns: 1fr;
-                text-align: center;
-            }
-            .scanner-payment img {
-                max-width: 220px;
-                margin: 0 auto;
-            }
             .nav-links {
                 display: none;
                 position: absolute;
@@ -674,7 +639,7 @@
     </style>
 <style>
 .home-back-button {
-  position: absolute;
+  position: fixed;
   top: 88px;
   left: 20px;
   z-index: 1400;
@@ -844,7 +809,7 @@
                     <div class="form-group">
                         <label>Amount</label>
                         <div class="custom-amount">
-                            <span>â‚¹</span>
+                            <span>₹</span>
                             <input type="number" id="customAmount" placeholder="Auto-filled from plan" min="10" max="5000" readonly disabled style="background-color: #f1f3f4; cursor: not-allowed;">
                         </div>
                     </div>
@@ -874,7 +839,7 @@
                         </div>
                         <div class="summary-total">
                             <span>Total Amount:</span>
-                            <strong id="summaryTotal">â‚¹0</strong>
+                            <strong id="summaryTotal">₹0</strong>
                         </div>
                     </div>
                     <div class="form-group">
@@ -977,7 +942,7 @@
                         document.getElementById('summaryMobile').textContent = '-';
                         document.getElementById('summaryOperator').textContent = '-';
                         document.getElementById('summaryPlan').textContent = '-';
-                        document.getElementById('summaryTotal').textContent = 'â‚¹0';
+                        document.getElementById('summaryTotal').textContent = '₹0';
                     }
                     showSuccessDetailsCalled = false;
                 };
@@ -1001,7 +966,7 @@
                         document.getElementById('summaryMobile').textContent = '-';
                         document.getElementById('summaryOperator').textContent = '-';
                         document.getElementById('summaryPlan').textContent = '-';
-                        document.getElementById('summaryTotal').textContent = 'â‚¹0';
+                        document.getElementById('summaryTotal').textContent = '₹0';
                         showSuccessDetailsCalled = false;
                     }
                     // Scroll to the hero or home section
@@ -1128,7 +1093,7 @@
             </div>
         </div>
         <div class="copyright">
-            Â© 2025 Google Pay. All rights reserved multicloud dveops .
+            © 2025 Google Pay. All rights reserved multicloud dveops .
         </div>
     </footer>
     <!-- Toast Notification -->
@@ -1137,42 +1102,14 @@
         <span id="toastMessage"></span>
     </div>
     <script>
-        const SERVICE_API_QUEUE_KEY = "googleStoreApiQueue";
-        const USER_KEY = "googleStoreUser";
-
-        function getCurrentUser() {
-            try {
-                return JSON.parse(localStorage.getItem(USER_KEY) || "null");
-            } catch (error) {
-                return null;
-            }
-        }
-
-        function queueMainIndexRequest(path, body, method = 'POST') {
-            let queue = [];
-            try {
-                queue = JSON.parse(localStorage.getItem(SERVICE_API_QUEUE_KEY) || "[]");
-            } catch (error) {
-                queue = [];
-            }
-            queue.push({
-                id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-                path,
-                method,
-                body,
-                source: "googlepay"
-            });
-            localStorage.setItem(SERVICE_API_QUEUE_KEY, JSON.stringify(queue));
-        }
-
         // Sample Plans Data
         const plans = {
             airtel: {
                 topup: [
-                    { amount: 10, validity: 'N.A.', details: 'Talktime â‚¹7.47', type: 'topup' },
-                    { amount: 20, validity: 'N.A.', details: 'Talktime â‚¹14.95', type: 'topup' },
-                    { amount: 50, validity: 'N.A.', details: 'Talktime â‚¹40.48', type: 'topup' },
-                    { amount: 100, validity: 'N.A.', details: 'Talktime â‚¹81.75', type: 'topup' }
+                    { amount: 10, validity: 'N.A.', details: 'Talktime ₹7.47', type: 'topup' },
+                    { amount: 20, validity: 'N.A.', details: 'Talktime ₹14.95', type: 'topup' },
+                    { amount: 50, validity: 'N.A.', details: 'Talktime ₹40.48', type: 'topup' },
+                    { amount: 100, validity: 'N.A.', details: 'Talktime ₹81.75', type: 'topup' }
                 ],
                 data: [
                     { amount: 149, validity: '28 days', details: '1.5 GB/day + Unlimited Calls', type: 'data' },
@@ -1181,15 +1118,15 @@
                     { amount: 719, validity: '84 days', details: '1.5 GB/day + Unlimited Calls', type: 'data' }
                 ],
                 fulltt: [
-                    { amount: 100, validity: 'N.A.', details: 'Full Talktime â‚¹100', type: 'fulltt' },
-                    { amount: 500, validity: 'N.A.', details: 'Full Talktime â‚¹500', type: 'fulltt' },
-                    { amount: 1000, validity: 'N.A.', details: 'Full Talktime â‚¹1000', type: 'fulltt' }
+                    { amount: 100, validity: 'N.A.', details: 'Full Talktime ₹100', type: 'fulltt' },
+                    { amount: 500, validity: 'N.A.', details: 'Full Talktime ₹500', type: 'fulltt' },
+                    { amount: 1000, validity: 'N.A.', details: 'Full Talktime ₹1000', type: 'fulltt' }
                 ]
             },
             jio: {
                 topup: [
-                    { amount: 10, validity: 'N.A.', details: 'Talktime â‚¹7.47', type: 'topup' },
-                    { amount: 100, validity: 'N.A.', details: 'Talktime â‚¹81.75', type: 'topup' }
+                    { amount: 10, validity: 'N.A.', details: 'Talktime ₹7.47', type: 'topup' },
+                    { amount: 100, validity: 'N.A.', details: 'Talktime ₹81.75', type: 'topup' }
                 ],
                 data: [
                     { amount: 149, validity: '28 days', details: '1.5 GB/day + Unlimited Calls', type: 'data' },
@@ -1197,31 +1134,31 @@
                     { amount: 399, validity: '56 days', details: '1.5 GB/day + Unlimited Calls', type: 'data' }
                 ],
                 fulltt: [
-                    { amount: 1000, validity: 'N.A.', details: 'Full Talktime â‚¹1000', type: 'fulltt' }
+                    { amount: 1000, validity: 'N.A.', details: 'Full Talktime ₹1000', type: 'fulltt' }
                 ]
             },
             vi: {
                 topup: [
-                    { amount: 10, validity: 'N.A.', details: 'Talktime â‚¹7.47', type: 'topup' },
-                    { amount: 50, validity: 'N.A.', details: 'Talktime â‚¹40.48', type: 'topup' }
+                    { amount: 10, validity: 'N.A.', details: 'Talktime ₹7.47', type: 'topup' },
+                    { amount: 50, validity: 'N.A.', details: 'Talktime ₹40.48', type: 'topup' }
                 ],
                 data: [
                     { amount: 155, validity: '28 days', details: '1 GB/day + Unlimited Calls', type: 'data' },
                     { amount: 299, validity: '28 days', details: '2 GB/day + Unlimited Calls', type: 'data' }
                 ],
                 fulltt: [
-                    { amount: 500, validity: 'N.A.', details: 'Full Talktime â‚¹500', type: 'fulltt' }
+                    { amount: 500, validity: 'N.A.', details: 'Full Talktime ₹500', type: 'fulltt' }
                 ]
             },
             bsnl: {
                 topup: [
-                    { amount: 10, validity: 'N.A.', details: 'Talktime â‚¹7.47', type: 'topup' }
+                    { amount: 10, validity: 'N.A.', details: 'Talktime ₹7.47', type: 'topup' }
                 ],
                 data: [
                     { amount: 151, validity: '28 days', details: '1 GB/day + Unlimited Calls', type: 'data' }
                 ],
                 fulltt: [
-                    { amount: 110, validity: 'N.A.', details: 'Full Talktime â‚¹110', type: 'fulltt' }
+                    { amount: 110, validity: 'N.A.', details: 'Full Talktime ₹110', type: 'fulltt' }
                 ]
             }
         };
@@ -1356,7 +1293,7 @@
                 const card = document.createElement('div');
                 card.className = 'plan-card';
                 card.innerHTML = `
-                    <div class="plan-price">â‚¹${plan.amount}</div>
+                    <div class="plan-price">₹${plan.amount}</div>
                     <div class="plan-validity">${plan.validity}</div>
                     <div class="plan-details">${plan.details}</div>
                 `;
@@ -1393,13 +1330,6 @@
             let formHTML = '';
             if (method === 'upi') {
                 formHTML = `
-                    <div class="scanner-payment">
-                        <img src="scan.jpg" alt="UPI scanner code">
-                        <div>
-                            <h4>Scan and pay</h4>
-                            <p>Use any UPI app to scan this code, then tap Pay Now to save your recharge.</p>
-                        </div>
-                    </div>
                     <div class="form-group">
                         <label>UPI ID</label>
                         <div class="input-group">
@@ -1467,47 +1397,25 @@
             document.getElementById('summaryMobile').textContent = mobile;
             document.getElementById('summaryOperator').textContent = selectedOperator.charAt(0).toUpperCase() + selectedOperator.slice(1);
             if (selectedPlan) {
-                document.getElementById('summaryPlan').textContent = `â‚¹${selectedPlan.amount} - ${selectedPlan.details}`;
+                document.getElementById('summaryPlan').textContent = `₹${selectedPlan.amount} - ${selectedPlan.details}`;
             } else {
-                document.getElementById('summaryPlan').textContent = `Custom Amount â‚¹${selectedAmount}`;
+                document.getElementById('summaryPlan').textContent = `Custom Amount ₹${selectedAmount}`;
             }
-            document.getElementById('summaryTotal').textContent = `â‚¹${selectedAmount}`;
+            document.getElementById('summaryTotal').textContent = `₹${selectedAmount}`;
         }
         // Form Submission
-        rechargeForm.addEventListener('submit', async (e) => {
+        rechargeForm.addEventListener('submit', (e) => {
             e.preventDefault();
 
             if (!validateCurrentStep()) return;
-
-            const currentUser = getCurrentUser();
-            if (!currentUser || !currentUser.email) {
-                showToast('Please login on the home page before making a payment.', 'error');
-                return;
-            }
 
             // Show loading
             loading.style.display = 'flex';
             payBtn.disabled = true;
             payBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
 
-            try {
-                const mobile = document.getElementById('mobile').value;
-                const planName = selectedPlan
-                    ? `${selectedPlan.amount} - ${selectedPlan.details}`
-                    : `Custom Amount ${selectedAmount}`;
-                const transactionReference = `GPAY-${Date.now()}`;
-
-                queueMainIndexRequest('/recharges', {
-                    email: currentUser.email,
-                    mobile_number: mobile,
-                    operator_name: selectedOperator,
-                    plan_name: planName,
-                    amount: selectedAmount,
-                    payment_method: selectedPaymentMethod,
-                    status: 'success',
-                    transaction_reference: transactionReference
-                });
-
+            // Simulate API call
+            setTimeout(() => {
                 loading.style.display = 'none';
                 payBtn.disabled = false;
                 payBtn.innerHTML = 'Pay Now <i class="fas fa-lock"></i>';
@@ -1516,7 +1424,7 @@
                 document.querySelector('.recharge-card > form').style.display = 'none';
                 successMessage.style.display = 'block';
 
-                showToast('Recharge saved. Main page will sync it to backend.', 'success');
+                showToast('Recharge successful! ₹' + selectedAmount + ' added to your mobile.', 'success');
 
                 // After success, strictly DON'T reload or go to home, even on touch or click
                 // Listen to touches/clicks on the success message, but block navigation or reload
@@ -1538,12 +1446,7 @@
                     successMessage.removeEventListener('click', blockInteraction);
                     successMessage.removeEventListener('touchstart', blockInteraction);
                 }, 5000);
-            } catch (error) {
-                loading.style.display = 'none';
-                payBtn.disabled = false;
-                payBtn.innerHTML = 'Pay Now <i class="fas fa-lock"></i>';
-                showToast(error.message || 'Payment failed. Please try again.', 'error');
-            }
+            }, 3000);
         });
         function resetForm() {
             // Instead of reloading, just reset all fields and UI to initial state
@@ -1635,4 +1538,3 @@
     </script>
 </body>
 </html>
-
