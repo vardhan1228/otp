@@ -1,0 +1,3227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Production-ready Google-style microservices lab with shopping, payments, OTP login, and live activity dashboard.">
+  <title>Google Services Lab | Multicloud DevOps Store</title>
+  <link rel="icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+  <style>
+    :root {
+      --blue: #1a73e8;
+      --blue-deep: #0f4ecf;
+      --green: #34a853;
+      --red: #ea4335;
+      --yellow: #fbbc04;
+      --ink: #0f172a;
+      --muted: #5f6368;
+      --soft: #edf4ff;
+      --violet: #7c3aed;
+      --cyan: #06b6d4;
+      --pink: #ec4899;
+      --surface: rgba(255, 255, 255, 0.78);
+      --surface-strong: rgba(255, 255, 255, 0.92);
+      --border: rgba(148, 163, 184, 0.22);
+      --shadow: 0 24px 60px rgba(15, 23, 42, 0.14);
+      --radius-xl: 32px;
+      --radius-lg: 24px;
+      --radius-md: 18px;
+      --container: 1240px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Google Sans", Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(66, 133, 244, 0.22), transparent 28%),
+        radial-gradient(circle at 85% 12%, rgba(251, 188, 4, 0.24), transparent 24%),
+        radial-gradient(circle at 20% 85%, rgba(52, 168, 83, 0.16), transparent 25%),
+        radial-gradient(circle at 78% 72%, rgba(124, 58, 237, 0.16), transparent 22%),
+        linear-gradient(180deg, #f6fbff 0%, #edf6ff 42%, #fff6fb 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body.modal-open {
+      overflow: hidden;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .page-shell {
+      position: relative;
+      isolation: isolate;
+    }
+
+    .page-shell::before,
+    .page-shell::after {
+      content: "";
+      position: fixed;
+      border-radius: 999px;
+      filter: blur(18px);
+      opacity: 0.55;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .page-shell::before {
+      width: 320px;
+      height: 320px;
+      top: 80px;
+      left: -100px;
+      background: rgba(66, 133, 244, 0.2);
+      animation: floatBlob 14s ease-in-out infinite alternate;
+    }
+
+    .page-shell::after {
+      width: 280px;
+      height: 280px;
+      right: -80px;
+      top: 420px;
+      background: rgba(251, 188, 4, 0.18);
+      animation: floatBlob 16s ease-in-out infinite alternate-reverse;
+    }
+
+    @keyframes floatBlob {
+      from {
+        transform: translate3d(0, 0, 0) scale(1);
+      }
+      to {
+        transform: translate3d(24px, -20px, 0) scale(1.08);
+      }
+    }
+
+    .container {
+      width: min(var(--container), calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .navbar {
+      position: relative;
+      z-index: 40;
+      backdrop-filter: blur(18px);
+      background: rgba(247, 251, 255, 0.76);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.55);
+    }
+
+    .navbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      min-height: 84px;
+    }
+
+    .navbar-left,
+    .navbar-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 22px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .logo-mark {
+      display: inline-flex;
+      letter-spacing: -0.05em;
+    }
+
+    .logo-subtitle {
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 500;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(148, 163, 184, 0.16);
+    }
+
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .nav-pill {
+      padding: 10px 14px;
+      border-radius: 999px;
+      color: #334155;
+      font-size: 14px;
+      font-weight: 500;
+      transition: transform 0.25s ease, background 0.25s ease, color 0.25s ease;
+    }
+
+    .nav-pill:hover {
+      background: rgba(26, 115, 232, 0.1);
+      color: var(--blue);
+      transform: translateY(-1px);
+    }
+
+    .search-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: "FILL" 0, "wght" 450, "GRAD" 0, "opsz" 24;
+      line-height: 1;
+    }
+
+    .navbar-auth-btn,
+    .navbar-logout-btn,
+    .cta-button,
+    .secondary-button,
+    .card-link,
+    .auth-submit,
+    #profile button {
+      border: none;
+      cursor: pointer;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+    }
+
+    .navbar-auth-btn {
+      padding: 11px 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(26, 115, 232, 0.2);
+      background: rgba(255, 255, 255, 0.88);
+      color: var(--blue);
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 10px 24px rgba(26, 115, 232, 0.08);
+    }
+
+    .navbar-auth-btn:hover,
+    .navbar-logout-btn:hover,
+    .cta-button:hover,
+    .secondary-button:hover,
+    .card-link:hover,
+    .auth-submit:hover,
+    #profile button:hover {
+      transform: translateY(-2px);
+    }
+
+    .navbar-auth-btn:last-of-type,
+    .cta-button,
+    .auth-submit {
+      background: linear-gradient(135deg, var(--blue) 0%, #5692ff 100%);
+      color: #fff;
+      box-shadow: 0 16px 34px rgba(26, 115, 232, 0.28);
+    }
+
+    .navbar-profile-container {
+      display: none;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 10px 8px 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
+      opacity: 0;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      transform: translateY(8px);
+    }
+
+    .navbar-profile-container.show {
+      display: flex;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .navbar-avatar,
+    #profile .avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--blue), #5d9dff);
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+      box-shadow: 0 14px 28px rgba(26, 115, 232, 0.22);
+    }
+
+    .navbar-profile-name-email {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .navbar-profile-username {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .navbar-profile-email {
+      font-size: 12px;
+      color: var(--muted);
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .navbar-logout-btn {
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(239, 68, 68, 0.08);
+      color: var(--red);
+      border: 1px solid rgba(239, 68, 68, 0.14);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .hero-section {
+      padding: 42px 0 0;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+      gap: 28px;
+      align-items: stretch;
+    }
+
+    .hero-copy,
+    .hero-visual,
+    .story-strip,
+    .featured-products-section,
+    .activity-card,
+    .student-focus-section,
+    .auth-shell {
+      background: var(--surface);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.65);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-copy {
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radius-xl);
+      padding: 36px;
+    }
+
+    .hero-copy::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.56)),
+        radial-gradient(circle at top right, rgba(26, 115, 232, 0.18), transparent 30%),
+        radial-gradient(circle at bottom left, rgba(236, 72, 153, 0.12), transparent 24%);
+      z-index: -1;
+    }
+
+    .hero-copy::after {
+      content: "";
+      position: absolute;
+      inset: auto -40px -40px auto;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(251, 188, 4, 0.24), transparent 68%);
+      animation: pulseGlow 4.8s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(26, 115, 232, 0.09);
+      color: var(--blue);
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 18px;
+    }
+
+    .hero-section h1 {
+      margin: 0 0 18px;
+      font-size: clamp(44px, 7vw, 78px);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+      max-width: 10ch;
+      background: linear-gradient(120deg, var(--blue) 0%, var(--green) 24%, var(--yellow) 48%, var(--red) 72%, var(--violet) 100%);
+      background-size: 220% 220%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: titleShift 7s ease-in-out infinite;
+      text-shadow: 0 10px 30px rgba(26, 115, 232, 0.16);
+    }
+
+    @keyframes titleShift {
+      0% {
+        background-position: 0% 50%;
+        transform: translateY(0);
+      }
+      50% {
+        background-position: 100% 50%;
+        transform: translateY(-3px);
+      }
+      100% {
+        background-position: 0% 50%;
+        transform: translateY(0);
+      }
+    }
+
+    .hero-lead {
+      margin: 0 0 12px;
+      max-width: 58ch;
+      color: #334155;
+      font-size: 18px;
+      line-height: 1.7;
+    }
+
+    .hero-support {
+      margin: 0 0 28px;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .cta-button,
+    .secondary-button,
+    .card-link,
+    .auth-submit,
+    #profile button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 50px;
+      padding: 0 22px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    .secondary-button,
+    .card-link,
+    #profile button {
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      color: var(--ink);
+      box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08);
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .stat-tile {
+      padding: 16px 18px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.82);
+      border: 1px solid rgba(148, 163, 184, 0.14);
+    }
+
+    .stat-value {
+      display: block;
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .hero-visual {
+      position: relative;
+      border-radius: var(--radius-xl);
+      padding: 24px;
+      overflow: hidden;
+      display: grid;
+      gap: 18px;
+      align-content: start;
+    }
+
+    .hero-visual::before {
+      content: "";
+      position: absolute;
+      inset: -120px -80px auto auto;
+      width: 280px;
+      height: 280px;
+      background: radial-gradient(circle, rgba(26, 115, 232, 0.18), transparent 68%);
+      pointer-events: none;
+    }
+
+    .hero-video-wrap {
+      position: relative;
+      border-radius: 26px;
+      overflow: hidden;
+      background: linear-gradient(135deg, #dcebff, #ffffff);
+      min-height: 260px;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.58);
+    }
+
+    .hero-video-wrap video {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+    }
+
+    .floating-tag {
+      position: absolute;
+      border-radius: 18px;
+      padding: 14px 16px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      box-shadow: 0 18px 34px rgba(15, 23, 42, 0.14);
+      animation: drift 5.4s ease-in-out infinite alternate;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 0.8;
+      }
+      50% {
+        transform: scale(1.12);
+        opacity: 1;
+      }
+    }
+
+    .floating-tag strong {
+      display: block;
+      font-size: 15px;
+      margin-bottom: 4px;
+    }
+
+    .floating-tag span {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .floating-tag.top {
+      top: 18px;
+      right: 18px;
+    }
+
+    .floating-tag.bottom {
+      left: 18px;
+      bottom: 18px;
+      animation-delay: 0.8s;
+    }
+
+    @keyframes drift {
+      from {
+        transform: translateY(0);
+      }
+      to {
+        transform: translateY(-8px);
+      }
+    }
+
+    .hero-quick-panel {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .quick-card {
+      padding: 18px;
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.86);
+      border: 1px solid rgba(148, 163, 184, 0.16);
+    }
+
+    .quick-card .material-symbols-outlined {
+      display: inline-flex;
+      padding: 10px;
+      border-radius: 14px;
+      margin-bottom: 14px;
+      background: rgba(26, 115, 232, 0.1);
+      color: var(--blue);
+    }
+
+    .quick-card strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 16px;
+    }
+
+    .quick-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .story-strip {
+      margin-top: 26px;
+      border-radius: var(--radius-xl);
+      padding: 22px;
+    }
+
+    .story-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .story-card {
+      padding: 18px;
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.82);
+      border: 1px solid rgba(148, 163, 184, 0.14);
+    }
+
+    .story-card strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+
+    .story-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .section-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 18px;
+      margin-bottom: 26px;
+    }
+
+    .section-heading h2 {
+      margin: 0 0 8px;
+      font-size: clamp(28px, 4vw, 42px);
+      letter-spacing: -0.04em;
+    }
+
+    .section-heading p {
+      margin: 0;
+      color: var(--muted);
+      max-width: 48ch;
+      line-height: 1.7;
+    }
+
+    .featured-products-section {
+      margin-top: 26px;
+      padding: 30px;
+      border-radius: var(--radius-xl);
+    }
+
+    .featured-products {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .product-card {
+      --card-accent: rgba(26, 115, 232, 0.16);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-height: 100%;
+      padding: 22px;
+      border-radius: 26px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(242, 247, 255, 0.92));
+      border: 1px solid rgba(148, 163, 184, 0.12);
+      box-shadow: 0 20px 34px rgba(15, 23, 42, 0.08);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .product-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(130deg, transparent 0%, rgba(255, 255, 255, 0.72) 45%, transparent 70%),
+        radial-gradient(circle at top right, var(--card-accent), transparent 36%);
+      opacity: 0;
+      transform: translateX(-35%);
+      transition: opacity 0.35s ease, transform 0.55s ease;
+      pointer-events: none;
+    }
+
+    .product-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 28px 42px rgba(15, 23, 42, 0.12);
+    }
+
+    .product-card:hover::before {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .product-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      align-self: flex-start;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: rgba(26, 115, 232, 0.09);
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      animation: badgeBob 3.2s ease-in-out infinite;
+    }
+
+    @keyframes badgeBob {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-2px);
+      }
+    }
+
+    .product-media {
+      display: grid;
+      place-items: center;
+      min-height: 172px;
+      padding: 10px;
+      border-radius: 22px;
+      background:
+        radial-gradient(circle at top, var(--card-accent), transparent 42%),
+        linear-gradient(180deg, #ffffff, #f5f9ff);
+    }
+
+    .product-media img {
+      width: min(100%, 220px);
+      max-height: 160px;
+      object-fit: contain;
+      transition: transform 0.35s ease;
+      filter: drop-shadow(0 18px 28px rgba(15, 23, 42, 0.12));
+    }
+
+    .product-card:hover .product-media img {
+      transform: scale(1.05) translateY(-2px);
+    }
+
+    .product-card:nth-child(1),
+    .product-card:nth-child(2),
+    .product-card:nth-child(3) {
+      animation: cardFloat 5.8s ease-in-out infinite;
+    }
+
+    .product-card:nth-child(2) {
+      animation-delay: 0.5s;
+    }
+
+    .product-card:nth-child(3) {
+      animation-delay: 1s;
+    }
+
+    @keyframes cardFloat {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-5px);
+      }
+    }
+
+    .product-card h3 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    .product-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.65;
+      flex-grow: 1;
+    }
+
+    .product-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: auto;
+    }
+
+    .product-price {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .card-link {
+      padding-inline: 18px;
+      min-height: 46px;
+    }
+
+    .activity-section {
+      padding: 26px 0 0;
+    }
+
+    .activity-shell {
+      width: min(var(--container), calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .activity-header {
+      margin-bottom: 20px;
+    }
+
+    .activity-header h2 {
+      margin: 0 0 8px;
+      font-size: 34px;
+      letter-spacing: -0.04em;
+    }
+
+    .activity-header p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .activity-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .student-summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin: 0 0 18px;
+    }
+
+    .summary-chip {
+      padding: 18px 20px;
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(240, 247, 255, 0.9));
+      border: 1px solid rgba(148, 163, 184, 0.14);
+      box-shadow: 0 18px 34px rgba(15, 23, 42, 0.08);
+    }
+
+    .summary-chip strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .summary-chip span {
+      display: block;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .activity-card {
+      border-radius: 26px;
+      padding: 24px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(242, 248, 255, 0.92));
+      border: 1px solid rgba(148, 163, 184, 0.14);
+      box-shadow: 0 20px 42px rgba(15, 23, 42, 0.08);
+    }
+
+    .activity-card h3 {
+      margin: 0 0 14px;
+      font-size: 22px;
+    }
+
+    .activity-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .activity-item,
+    .activity-empty {
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(148, 163, 184, 0.14);
+    }
+
+    .activity-item strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 15px;
+    }
+
+    .activity-meta,
+    .activity-empty {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .service-activity-item {
+      border-left: 4px solid var(--blue);
+    }
+
+    .orders-panel {
+      width: min(var(--container), calc(100% - 32px));
+      margin: 24px auto 0;
+      border-radius: var(--radius-xl);
+      padding: 26px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(245, 249, 255, 0.92));
+      border: 1px solid rgba(148, 163, 184, 0.16);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .orders-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .orders-panel-header h3 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .orders-panel-header p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .orders-list-full {
+      display: grid;
+      gap: 14px;
+    }
+
+    .order-detail-card {
+      padding: 18px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.16);
+    }
+
+    .order-detail-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+
+    .order-status-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: rgba(52, 168, 83, 0.12);
+      color: #137333;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .order-items {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .order-item-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(248, 250, 252, 0.9);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .student-focus-section {
+      width: min(var(--container), calc(100% - 32px));
+      margin: 26px auto 0;
+      border-radius: var(--radius-xl);
+      padding: 30px;
+      display: grid;
+      grid-template-columns: minmax(0, 0.95fr) minmax(280px, 1.05fr);
+      gap: 22px;
+      align-items: center;
+    }
+
+    .student-focus-copy .icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
+      background: rgba(52, 168, 83, 0.12);
+      color: var(--green);
+      margin-bottom: 16px;
+      font-size: 32px;
+      font-variation-settings: "FILL" 1, "wght" 500, "GRAD" 0, "opsz" 24;
+    }
+
+    .student-focus-copy h2 {
+      margin: 0 0 12px;
+      font-size: clamp(30px, 4vw, 44px);
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+    }
+
+    .student-focus-copy p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .student-focus-panel {
+      display: grid;
+      gap: 14px;
+    }
+
+    .student-focus-point {
+      padding: 18px;
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(245, 249, 255, 0.88));
+      border: 1px solid rgba(148, 163, 184, 0.14);
+    }
+
+    .student-focus-point strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 16px;
+    }
+
+    .student-focus-point span {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .footer {
+      width: min(var(--container), calc(100% - 32px));
+      margin: 26px auto 36px;
+      padding: 26px 24px;
+      border-radius: 28px;
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(148, 163, 184, 0.14);
+      box-shadow: 0 18px 42px rgba(15, 23, 42, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .logo-google-store img {
+      height: 36px;
+      display: block;
+    }
+
+    .footer-copy {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .auth-modal-overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(15, 23, 42, 0.42);
+      backdrop-filter: blur(12px);
+      z-index: 100;
+    }
+
+    .auth-modal-overlay.open {
+      display: flex;
+    }
+
+    .auth-modal-overlay.auth-pulse .auth-shell {
+      animation: authModalPop 0.36s cubic-bezier(.2, .9, .2, 1.2);
+    }
+
+    @keyframes authModalPop {
+      0% {
+        transform: translateY(18px) scale(0.97);
+        opacity: 0.75;
+      }
+      100% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+    }
+
+    .auth-shell {
+      display: grid;
+      grid-template-columns: minmax(280px, 0.92fr) minmax(320px, 1.08fr);
+      width: min(960px, 100%);
+      border-radius: 34px;
+      overflow: hidden;
+      animation: authIn 0.35s ease;
+    }
+
+    @keyframes authIn {
+      from {
+        opacity: 0;
+        transform: translateY(16px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .auth-panel {
+      position: relative;
+      padding: 34px;
+      background:
+        radial-gradient(circle at top left, rgba(66, 133, 244, 0.18), transparent 30%),
+        linear-gradient(180deg, #eef5ff, #dbe9ff);
+      color: #0f172a;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 580px;
+    }
+
+    .auth-panel .auth-logo-google-store {
+      margin-bottom: 18px;
+    }
+
+    .auth-panel .auth-logo-google-store img {
+      height: 42px;
+      max-width: 180px;
+      object-fit: contain;
+      display: block;
+      border-radius: 12px;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+      background: #fff;
+      padding: 4px 10px;
+    }
+
+    .auth-panel h2 {
+      margin: 0 0 12px;
+      font-size: 34px;
+      line-height: 1.02;
+      letter-spacing: -0.05em;
+    }
+
+    .auth-panel p {
+      margin: 0;
+      color: #334155;
+      line-height: 1.7;
+    }
+
+    .auth-points {
+      display: grid;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .auth-point {
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.82);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+    }
+
+    .auth-point strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 15px;
+    }
+
+    .auth-point span {
+      color: #475569;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .card#authCard {
+      position: relative;
+      padding: 34px;
+      background: var(--surface-strong);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 580px;
+    }
+
+    .auth-close-btn {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--muted);
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    .auth-heading {
+      margin-bottom: 20px;
+    }
+
+    #authCard h2#formTitle {
+      margin: 0 0 8px;
+      font-size: 34px;
+      line-height: 1;
+      letter-spacing: -0.05em;
+      color: var(--ink);
+    }
+
+    .auth-subtitle {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    #signupForm,
+    #loginForm {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      width: 100%;
+    }
+
+    #su-inputs,
+    #li-inputs,
+    #su-otp-block,
+    #li-otp-block {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .field-note {
+      margin: 0;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    #signupForm input,
+    #loginForm input {
+      width: 100%;
+      min-height: 54px;
+      padding: 0 16px;
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      background: rgba(248, 250, 252, 0.96);
+      color: var(--ink);
+      font-size: 15px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    #signupForm input:focus,
+    #loginForm input:focus {
+      outline: none;
+      border-color: rgba(26, 115, 232, 0.45);
+      box-shadow: 0 0 0 5px rgba(26, 115, 232, 0.1);
+      background: #fff;
+    }
+
+    .auth-submit {
+      width: 100%;
+      margin-top: 2px;
+      position: relative;
+    }
+
+    .auth-submit.is-loading,
+    .navbar-auth-btn.is-opening {
+      pointer-events: none;
+      opacity: 0.86;
+      transform: translateY(-1px) scale(0.99);
+    }
+
+    .auth-submit.is-loading {
+      padding-left: 52px;
+      background: linear-gradient(135deg, #0f4ecf 0%, #1a73e8 52%, #34a853 100%);
+      background-size: 220% 220%;
+      animation: authButtonGlow 1.1s ease-in-out infinite;
+    }
+
+    .auth-submit.is-loading::before {
+      content: "";
+      position: absolute;
+      left: 22px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.45);
+      border-top-color: #fff;
+      animation: authSpin 0.75s linear infinite;
+    }
+
+    @keyframes authSpin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes authButtonGlow {
+      0%, 100% {
+        background-position: 0% 50%;
+        box-shadow: 0 16px 34px rgba(26, 115, 232, 0.28);
+      }
+      50% {
+        background-position: 100% 50%;
+        box-shadow: 0 18px 40px rgba(52, 168, 83, 0.28);
+      }
+    }
+
+    .switch {
+      margin-top: 18px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .switch a {
+      color: var(--blue);
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .message {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.5;
+      display: none;
+      text-align: center;
+    }
+
+    .message.success {
+      display: block;
+      background: rgba(52, 168, 83, 0.1);
+      color: var(--green);
+      border: 1px solid rgba(52, 168, 83, 0.18);
+    }
+
+    .message.error {
+      display: block;
+      background: rgba(234, 67, 53, 0.09);
+      color: var(--red);
+      border: 1px solid rgba(234, 67, 53, 0.16);
+    }
+
+    .message.info {
+      display: block;
+      background: rgba(26, 115, 232, 0.09);
+      color: var(--blue);
+      border: 1px solid rgba(26, 115, 232, 0.16);
+    }
+
+    #profile {
+      display: none;
+      margin-top: 20px;
+      padding: 22px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(148, 163, 184, 0.14);
+      text-align: center;
+    }
+
+    #profile .avatar {
+      margin: 0 auto 12px;
+      width: 52px;
+      height: 52px;
+      font-size: 22px;
+    }
+
+    #profile .profile-info {
+      margin-bottom: 14px;
+    }
+
+    #profile strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 18px;
+    }
+
+    #profile-email {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 1140px) {
+      .navbar-inner {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 18px 0;
+      }
+
+      .navbar-left,
+      .navbar-right {
+        justify-content: space-between;
+        flex-wrap: wrap;
+      }
+
+      .hero-grid,
+      .student-focus-section,
+      .auth-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .featured-products {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .story-grid,
+      .activity-grid,
+      .student-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .auth-panel,
+      .card#authCard {
+        min-height: auto;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .container,
+      .activity-shell,
+      .orders-panel,
+      .student-focus-section,
+      .footer {
+        width: min(var(--container), calc(100% - 20px));
+      }
+
+      .hero-copy,
+      .hero-visual,
+      .featured-products-section,
+      .student-focus-section,
+      .orders-panel,
+      .activity-card,
+      .story-strip {
+        border-radius: 24px;
+      }
+
+      .hero-copy,
+      .featured-products-section,
+      .student-focus-section,
+      .orders-panel,
+      .activity-card,
+      .story-strip,
+      .auth-panel,
+      .card#authCard {
+        padding: 22px;
+      }
+
+      .hero-stats,
+      .hero-quick-panel,
+      .featured-products,
+      .story-grid,
+      .activity-grid,
+      .student-summary {
+        grid-template-columns: 1fr;
+      }
+
+      .section-heading {
+        flex-direction: column;
+        align-items: start;
+      }
+
+      .navbar-right {
+        justify-content: flex-start;
+      }
+
+      .logo-subtitle,
+      .search-chip {
+        display: none;
+      }
+
+      .footer {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    /* Production polish */
+    .navbar {
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    .logo-subtitle {
+      background: linear-gradient(135deg, #ffffff, #eef6ff);
+      color: #1f2937;
+    }
+
+    .hero-section {
+      padding-top: 34px;
+    }
+
+    .hero-copy,
+    .hero-visual,
+    .featured-products-section,
+    .activity-card,
+    .student-focus-section,
+    .story-strip {
+      border-color: rgba(255, 255, 255, 0.78);
+    }
+
+    .hero-section h1 {
+      max-width: 12ch;
+    }
+
+    .hero-showcase {
+      position: relative;
+      min-height: 360px;
+      display: grid;
+      grid-template-columns: 1fr 0.74fr;
+      grid-template-rows: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .showcase-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 28px;
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(148, 163, 184, 0.16);
+      box-shadow: 0 24px 46px rgba(15, 23, 42, 0.12);
+    }
+
+    .showcase-card::before {
+      content: "";
+      position: absolute;
+      inset: -35% -20% auto auto;
+      width: 180px;
+      height: 180px;
+      border-radius: 999px;
+      background: rgba(26, 115, 232, 0.16);
+      pointer-events: none;
+    }
+
+    .showcase-main {
+      grid-row: 1 / 4;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 24px;
+      background: linear-gradient(145deg, rgba(255,255,255,0.94), rgba(229,242,255,0.92));
+    }
+
+    .showcase-main img {
+      width: min(100%, 310px);
+      align-self: center;
+      filter: drop-shadow(0 28px 32px rgba(15, 23, 42, 0.16));
+      animation: heroDeviceFloat 5.6s ease-in-out infinite;
+    }
+
+    .showcase-main strong {
+      font-size: 24px;
+      letter-spacing: -0.03em;
+    }
+
+    .showcase-main span:last-child {
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .showcase-kicker {
+      align-self: flex-start;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: rgba(26, 115, 232, 0.1);
+      color: var(--blue);
+      font-weight: 700;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .mini-card {
+      display: grid;
+      grid-template-columns: 72px 1fr;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      color: var(--ink);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .mini-card:hover {
+      transform: translateY(-4px) scale(1.01);
+      box-shadow: 0 30px 50px rgba(15, 23, 42, 0.15);
+    }
+
+    .mini-card img {
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+      filter: drop-shadow(0 12px 18px rgba(15, 23, 42, 0.12));
+    }
+
+    .mini-card span {
+      font-weight: 700;
+    }
+
+    .mini-blue::before { background: rgba(66, 133, 244, 0.18); }
+    .mini-green::before { background: rgba(52, 168, 83, 0.16); }
+    .mini-yellow::before { background: rgba(251, 188, 4, 0.2); }
+
+    @keyframes heroDeviceFloat {
+      0%, 100% { transform: translateY(0) rotate(-1deg); }
+      50% { transform: translateY(-12px) rotate(1deg); }
+    }
+
+    .featured-products-section {
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.92), rgba(240,248,255,0.78)),
+        radial-gradient(circle at top right, rgba(26,115,232,0.16), transparent 32%);
+    }
+
+    .product-card {
+      min-height: 430px;
+    }
+
+    .card-link,
+    .secondary-button {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-link::after,
+    .secondary-button::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(110deg, transparent, rgba(255,255,255,0.74), transparent);
+      transform: translateX(-130%);
+      transition: transform 0.55s ease;
+    }
+
+    .card-link:hover::after,
+    .secondary-button:hover::after {
+      transform: translateX(130%);
+    }
+
+    @media (max-width: 780px) {
+      .hero-showcase {
+        min-height: auto;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+      }
+
+      .showcase-main {
+        grid-row: auto;
+      }
+
+      .mini-card {
+        grid-template-columns: 58px 1fr;
+      }
+
+      .mini-card img {
+        width: 58px;
+        height: 58px;
+      }
+    }
+
+    .navbar.marketplace-header {
+      position: relative;
+      z-index: 40;
+      background: #fff;
+      border-bottom: 1px solid #d9dde3;
+      backdrop-filter: none;
+      box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04);
+    }
+
+    .marketplace-topbar {
+      min-height: 82px;
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) auto;
+      align-items: center;
+      gap: 28px;
+    }
+
+    .marketplace-search {
+      height: 54px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 18px;
+      border: 2px solid #2a8cff;
+      border-radius: 14px;
+      background: #fff;
+      color: #4b5563;
+    }
+
+    .marketplace-search .material-symbols-outlined {
+      font-size: 30px;
+      color: #0b63f6;
+    }
+
+    .marketplace-search input {
+      width: 100%;
+      border: 0;
+      outline: 0;
+      color: #111827;
+      font-size: 20px;
+      background: transparent;
+    }
+
+    .marketplace-search input::placeholder {
+      color: #4b5563;
+    }
+
+    .marketplace-actions {
+      display: flex;
+      align-items: center;
+      gap: 26px;
+      white-space: nowrap;
+    }
+
+    .marketplace-action,
+    .marketplace-action-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 44px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: #111827;
+      font-size: 18px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .marketplace-action .material-symbols-outlined,
+    .marketplace-action-button .material-symbols-outlined {
+      font-size: 30px;
+      color: #111;
+    }
+
+    .marketplace-action-button .material-symbols-outlined:first-child {
+      color: #172554;
+    }
+
+    .marketplace-action .material-symbols-outlined {
+      color: #1d4ed8;
+    }
+
+    .marketplace-action-button .expand-icon {
+      font-size: 22px;
+    }
+
+    .marketplace-profile {
+      gap: 10px;
+      min-height: 44px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+    }
+
+    .marketplace-profile .navbar-avatar {
+      width: 30px;
+      height: 30px;
+      font-size: 14px;
+    }
+
+    .marketplace-profile .navbar-profile-email {
+      display: none;
+    }
+
+    .marketplace-profile .navbar-logout-btn {
+      padding: 8px 10px;
+      border-radius: 8px;
+    }
+
+    .marketplace-category-wrap {
+      border-top: 1px solid #eef0f3;
+    }
+
+    .marketplace-categories {
+      min-height: 96px;
+      display: flex;
+      align-items: stretch;
+      gap: 28px;
+      overflow-x: auto;
+      scrollbar-width: thin;
+    }
+
+    .marketplace-categories .nav-pill {
+      position: relative;
+      flex: 0 0 auto;
+      min-width: 76px;
+      padding: 12px 0 14px;
+      border-radius: 0;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      color: #0f172a;
+      font-size: 18px;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    .marketplace-categories .nav-pill:hover {
+      background: transparent;
+      color: #0b63f6;
+      transform: none;
+    }
+
+    .category-icon {
+      width: 42px;
+      height: 42px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 9px;
+      background: #f1f5f9;
+      color: #222;
+      box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.06);
+    }
+
+    .category-icon .material-symbols-outlined {
+      font-size: 34px;
+      color: currentColor;
+      font-variation-settings: "FILL" 1, "wght" 450, "GRAD" 0, "opsz" 24;
+    }
+
+    .marketplace-categories .nav-pill.active .category-icon {
+      background: linear-gradient(135deg, #d8edff, #fff7cc);
+      color: #0b63f6;
+    }
+
+    .marketplace-categories .nav-pill:nth-child(2) .category-icon {
+      background: linear-gradient(135deg, #ffe4f1, #ffd1e4);
+      color: #db2777;
+    }
+
+    .marketplace-categories .nav-pill:nth-child(3) .category-icon {
+      background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+      color: #2563eb;
+    }
+
+    .marketplace-categories .nav-pill:nth-child(4) .category-icon {
+      background: linear-gradient(135deg, #fce7f3, #fef3c7);
+      color: #be185d;
+    }
+
+    .marketplace-categories .nav-pill:nth-child(5) .category-icon {
+      background: linear-gradient(135deg, #e0f2fe, #dbeafe);
+      color: #0284c7;
+    }
+
+    .marketplace-categories .nav-pill:nth-child(6) .category-icon {
+      background: linear-gradient(135deg, #fef3c7, #dcfce7);
+      color: #ca8a04;
+    }
+
+    .marketplace-categories .nav-pill:nth-child(7) .category-icon {
+      background: linear-gradient(135deg, #ede9fe, #dbeafe);
+      color: #7c3aed;
+    }
+
+    .marketplace-categories .nav-pill:nth-child(8) .category-icon {
+      background: linear-gradient(135deg, #fee2e2, #fef3c7);
+      color: #dc2626;
+    }
+
+    .marketplace-categories .nav-pill:nth-child(9) .category-icon {
+      background: linear-gradient(135deg, #dcfce7, #fef9c3);
+      color: #16a34a;
+    }
+
+    .marketplace-categories .nav-pill:nth-child(10) .category-icon {
+      background: linear-gradient(135deg, #cffafe, #dbeafe);
+      color: #0891b2;
+    }
+
+    .marketplace-categories .nav-pill:nth-child(11) .category-icon {
+      background: linear-gradient(135deg, #e0f2fe, #fef3c7);
+      color: #ea580c;
+    }
+
+    .marketplace-categories .nav-pill:nth-child(12) .category-icon {
+      background: linear-gradient(135deg, #dcfce7, #d1fae5);
+      color: #15803d;
+    }
+
+    .marketplace-categories .nav-pill:nth-child(13) .category-icon {
+      background: linear-gradient(135deg, #ede9fe, #f5d0fe);
+      color: #9333ea;
+    }
+
+    .marketplace-categories .nav-pill:nth-child(14) .category-icon {
+      background: linear-gradient(135deg, #ffedd5, #fef3c7);
+      color: #b45309;
+    }
+
+    .marketplace-categories .nav-pill:nth-child(15) .category-icon {
+      background: linear-gradient(135deg, #dbeafe, #cffafe);
+      color: #2563eb;
+    }
+
+    .marketplace-categories .nav-pill:nth-child(16) .category-icon {
+      background: linear-gradient(135deg, #ede9fe, #e0f2fe);
+      color: #4f46e5;
+    }
+
+    .marketplace-categories .nav-pill:nth-child(17) .category-icon {
+      background: linear-gradient(135deg, #cffafe, #dcfce7);
+      color: #0891b2;
+    }
+
+    .marketplace-categories .nav-pill:nth-child(18) .category-icon {
+      background: linear-gradient(135deg, #dbeafe, #dcfce7);
+      color: #1d4ed8;
+    }
+
+    .marketplace-categories .nav-pill:nth-child(19) .category-icon {
+      background: linear-gradient(135deg, #dcfce7, #fef9c3);
+      color: #16a34a;
+    }
+
+    .marketplace-categories .nav-pill:nth-child(20) .category-icon {
+      background: linear-gradient(135deg, #e0f2fe, #dbeafe);
+      color: #0284c7;
+    }
+
+    .marketplace-categories .nav-pill.active {
+      font-weight: 700;
+    }
+
+    .marketplace-categories .nav-pill.active::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 5px;
+      border-radius: 999px 999px 0 0;
+      background: #0b63f6;
+    }
+
+    @media (max-width: 980px) {
+      .marketplace-topbar {
+        grid-template-columns: 1fr;
+        gap: 14px;
+        padding: 12px 0;
+      }
+
+      .marketplace-actions {
+        justify-content: space-between;
+        gap: 16px;
+      }
+
+      .marketplace-search input {
+        font-size: 17px;
+      }
+
+      .marketplace-categories {
+        gap: 20px;
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <header class="navbar marketplace-header">
+      <div class="container marketplace-topbar">
+        <label class="marketplace-search" aria-label="Search products">
+          <span class="material-symbols-outlined">search</span>
+          <input type="search" placeholder="Search for Products, Brands and More">
+        </label>
+
+        <div class="marketplace-actions">
+          <button class="marketplace-action-button" id="navbar-login-btn">
+            <span class="material-symbols-outlined">account_circle</span>
+            <span>Login</span>
+            <span class="material-symbols-outlined expand-icon">expand_more</span>
+          </button>
+          <button class="marketplace-action-button" id="navbar-signup-btn">
+            <span>More</span>
+            <span class="material-symbols-outlined expand-icon">expand_more</span>
+          </button>
+          <button class="marketplace-action-button" id="navbar-orders-btn">
+            <span class="material-symbols-outlined">receipt_long</span>
+            <span>Orders</span>
+          </button>
+          <a class="marketplace-action" href="/mobiles">
+            <span class="material-symbols-outlined">shopping_cart</span>
+            <span>Cart</span>
+          </a>
+          <div class="navbar-profile-container marketplace-profile" id="navbarProfile">
+            <span class="navbar-avatar" id="navbarAvatar"></span>
+            <span class="navbar-profile-name-email">
+              <span class="navbar-profile-username" id="navbarProfileUsername"></span>
+              <span class="navbar-profile-email" id="navbarProfileEmail"></span>
+            </span>
+            <button class="navbar-logout-btn" id="navbarLogoutBtn">Logout</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="marketplace-category-wrap">
+        <nav class="container marketplace-categories" aria-label="Product categories">
+          <a href="#services" class="nav-pill active">
+            <span class="category-icon"><span class="material-symbols-outlined">shopping_bag</span></span>
+            <span>For You</span>
+          </a>
+          <a href="/fashion" class="nav-pill" data-service-name="Fashion" data-service-path="/fashion">
+            <span class="category-icon"><span class="material-symbols-outlined">checkroom</span></span>
+            <span>Fashion</span>
+          </a>
+          <a href="/mobiles" class="nav-pill" data-service-name="Mobiles" data-service-path="/mobiles">
+            <span class="category-icon"><span class="material-symbols-outlined">smartphone</span></span>
+            <span>Mobiles</span>
+          </a>
+          <a href="/beauty" class="nav-pill" data-service-name="Beauty" data-service-path="/beauty">
+            <span class="category-icon"><span class="material-symbols-outlined">brush</span></span>
+            <span>Beauty</span>
+          </a>
+          <a href="/electronics" class="nav-pill" data-service-name="Electronics" data-service-path="/electronics">
+            <span class="category-icon"><span class="material-symbols-outlined">devices</span></span>
+            <span>Electronics</span>
+          </a>
+          <a href="/home" class="nav-pill" data-service-name="Home" data-service-path="/home">
+            <span class="category-icon"><span class="material-symbols-outlined">floor_lamp</span></span>
+            <span>Home</span>
+          </a>
+          <a href="/appliances" class="nav-pill" data-service-name="Appliances" data-service-path="/appliances">
+            <span class="category-icon"><span class="material-symbols-outlined">desktop_windows</span></span>
+            <span>Appliances</span>
+          </a>
+          <a href="/toys" class="nav-pill" data-service-name="Toys Baby Kids" data-service-path="/toys">
+            <span class="category-icon"><span class="material-symbols-outlined">toys</span></span>
+            <span>Toys, ba...</span>
+          </a>
+          <a href="/food" class="nav-pill" data-service-name="Food Health" data-service-path="/food">
+            <span class="category-icon"><span class="material-symbols-outlined">local_drink</span></span>
+            <span>Food &amp; H...</span>
+          </a>
+          <a href="/auto" class="nav-pill" data-service-name="Auto Accessories" data-service-path="/auto">
+            <span class="category-icon"><span class="material-symbols-outlined">wallet</span></span>
+            <span>Auto Acc...</span>
+          </a>
+          <a href="/two-wheelers" class="nav-pill" data-service-name="2 Wheelers" data-service-path="/two-wheelers">
+            <span class="category-icon"><span class="material-symbols-outlined">electric_moped</span></span>
+            <span>2 Wheele...</span>
+          </a>
+          <a href="/sports" class="nav-pill" data-service-name="Sports Fitness" data-service-path="/sports">
+            <span class="category-icon"><span class="material-symbols-outlined">sports_cricket</span></span>
+            <span>Sports &amp; ...</span>
+          </a>
+          <a href="/books" class="nav-pill" data-service-name="Books Stationery" data-service-path="/books">
+            <span class="category-icon"><span class="material-symbols-outlined">menu_book</span></span>
+            <span>Books &amp;...</span>
+          </a>
+          <a href="/furniture" class="nav-pill" data-service-name="Furniture" data-service-path="/furniture">
+            <span class="category-icon"><span class="material-symbols-outlined">chair</span></span>
+            <span>Furniture</span>
+          </a>
+          <a href="/computers" class="nav-pill" data-service-name="Computers" data-service-path="/computers">
+            <span class="category-icon"><span class="material-symbols-outlined">computer</span></span>
+            <span>Computers</span>
+          </a>
+          <a href="/earphones" class="nav-pill" data-service-name="Earphones" data-service-path="/earphones">
+            <span class="category-icon"><span class="material-symbols-outlined">headphones</span></span>
+            <span>Earphones</span>
+          </a>
+          <a href="/googlepay" class="nav-pill" data-service-name="Google Pay" data-service-path="/googlepay">
+            <span class="category-icon"><span class="material-symbols-outlined">payments</span></span>
+            <span>Pay</span>
+          </a>
+          <a href="/googlegrocery" class="nav-pill" data-service-name="Grocery" data-service-path="/googlegrocery">
+            <span class="category-icon"><span class="material-symbols-outlined">local_grocery_store</span></span>
+            <span>Grocery</span>
+          </a>
+          <a href="/googlemusic" class="nav-pill" data-service-name="Music" data-service-path="/googlemusic">
+            <span class="category-icon"><span class="material-symbols-outlined">library_music</span></span>
+            <span>Music</span>
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <div class="auth-modal-overlay" id="authModalOverlay">
+      <div class="auth-shell">
+        <aside class="auth-panel">
+          <div>
+            <div class="auth-logo-google-store">
+              <img src="https://latestlogo.com/wp-content/uploads/2024/01/google-store-logo.png" alt="Google Store Logo" draggable="false" loading="lazy">
+            </div>
+            <h2>One account for every service on this page.</h2>
+            <p>Sign in once to unlock shopping, payments, recharges, and synced activity across the experience.</p>
+            <div class="auth-points">
+              <div class="auth-point">
+                <strong>Fast access</strong>
+                <span>Move from the home page to shopping, payments, and order history without breaking flow.</span>
+              </div>
+              <div class="auth-point">
+                <strong>Protected by OTP</strong>
+                <span>The same verification flow stays in place with a cleaner, simpler interface.</span>
+              </div>
+              <div class="auth-point">
+                <strong>Recent activity</strong>
+                <span>Orders, payments, and recharges stay visible from one place after you sign in.</span>
+              </div>
+            </div>
+          </div>
+          <div class="story-card">
+            <strong>Quick access</strong>
+            <p>Clean sign-in, smoother browsing, and faster jumping between the main Google-style services.</p>
+          </div>
+        </aside>
+
+        <div class="card" id="authCard" tabindex="-1">
+          <button class="auth-close-btn" id="closeAuthModal" title="Close">&times;</button>
+          <div class="auth-heading">
+            <h2 id="formTitle">Sign Up</h2>
+            <p class="auth-subtitle">Create your account to unlock shopping, checkout, and personalized activity.</p>
+          </div>
+
+          <div id="signupForm">
+            <div id="su-inputs">
+              <input type="text" id="su-username" placeholder="Username" required>
+              <input type="email" id="su-email" placeholder="Email" required>
+              <input type="password" id="su-password" placeholder="Password" required>
+              <p class="field-note">Use 8+ characters with uppercase, lowercase, number, and special character.</p>
+            </div>
+            <div id="su-otp-block" style="display:none;">
+              <p class="field-note">Enter the code sent to your email to complete registration.</p>
+              <input type="text" id="su-otp" placeholder="6-digit Registration OTP">
+            </div>
+            <button id="su-btn" class="auth-submit" onclick="signup()">Create Account</button>
+          </div>
+
+          <div id="loginForm" style="display:none;">
+            <div id="li-inputs">
+              <input type="email" id="li-email" placeholder="Email" required>
+              <input type="password" id="li-password" placeholder="Password" required>
+            </div>
+            <div id="li-otp-block" style="display:none;">
+              <p class="field-note">Enter your login security code to finish signing in.</p>
+              <input type="text" id="li-otp" placeholder="6-digit Login OTP">
+            </div>
+            <button id="li-btn" class="auth-submit" onclick="login()">Login</button>
+          </div>
+
+          <div class="switch" id="switchText">
+            Already have an account? <a onclick="toggleForm('login')">Login</a>
+          </div>
+          <div id="msg" class="message"></div>
+
+          <div id="profile">
+            <div class="avatar" id="avatar"></div>
+            <div class="profile-info">
+              <strong id="profile-name"></strong>
+              <span id="profile-email"></span>
+            </div>
+            <button onclick="logout()">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <main class="hero-section">
+      <div class="container">
+        <div class="hero-grid">
+          <section class="hero-copy reveal">
+            <div class="eyebrow">
+              <span class="material-symbols-outlined">verified</span>
+              Ecommerce Application 
+            </div>
+            <h1>Multicloud Devops With Ai by Veera Sir Nareshit</h1>
+            <p class="hero-lead">A polished storefront for fashion, mobiles, beauty, electronics, home, appliances, toys, food, auto, two wheelers, sports, books, furniture, and payments - all connected through one OTP-secured experience.</p>
+            <p class="hero-support">Built for clean demos: fast service entry, live activity tracking, shared cart flows, and a bright UI that looks ready for production.</p>
+            <div class="hero-actions">
+              <a id="cta-button" href="/mobiles" class="cta-button">
+                Start shopping
+                <span class="material-symbols-outlined">arrow_forward</span>
+              </a>
+              <a href="#services" class="secondary-button">
+                View services
+                <span class="material-symbols-outlined">apps</span>
+              </a>
+            </div>
+            <div class="hero-stats">
+              <div class="stat-tile">
+                <span class="stat-value">14</span>
+                <span class="stat-label">Service modules ready to explore</span>
+              </div>
+              <div class="stat-tile">
+                <span class="stat-value">OTP</span>
+                <span class="stat-label">Secure OTP-based sign-in flow</span>
+              </div>
+              <div class="stat-tile">
+                <span class="stat-value">Live</span>
+                <span class="stat-label">Activity cards update after login</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="hero-visual reveal" aria-label="Featured service preview">
+            <div class="hero-showcase">
+              <div class="showcase-card showcase-main">
+                <span class="showcase-kicker">Featured</span>
+                <img src="./images/mobiles.svg" alt="Mobiles service preview" loading="eager">
+                <strong>Smart shopping flow</strong>
+                <span>Catalog, cart, checkout, and receipt journey.</span>
+              </div>
+              <a class="showcase-card mini-card mini-blue" href="/appliances">
+                <img src="https://loremflickr.com/520/380/home,appliances?lock=4101" alt="Appliances service" loading="lazy">
+                <span>Appliances</span>
+              </a>
+              <a class="showcase-card mini-card mini-green" href="/home">
+                <img src="https://loremflickr.com/520/380/home,decor?lock=4102" alt="Home service" loading="lazy">
+                <span>Home</span>
+              </a>
+              <a class="showcase-card mini-card mini-yellow" href="/electronics">
+                <img src="./images/electronics.svg" alt="Electronics service" loading="lazy">
+                <span>Electronics</span>
+              </a>
+            </div>
+            <div class="hero-quick-panel">
+              <div class="quick-card">
+                <span class="material-symbols-outlined">rocket_launch</span>
+                <strong>Deployment focused</strong>
+                <p>Clean landing page, stable local assets, and production-friendly API configuration.</p>
+              </div>
+              <div class="quick-card">
+                <span class="material-symbols-outlined">shield_lock</span>
+                <strong>OTP security</strong>
+                <p>Signup and login keep your existing backend flow with a cleaner user experience.</p>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <section class="story-strip reveal">
+          <div class="story-grid">
+            <div class="story-card">
+              <strong>Cleaner layout</strong>
+              <p>The home page now feels more focused, with tighter spacing and less unwanted filler text.</p>
+            </div>
+            <div class="story-card">
+              <strong>Better auth</strong>
+              <p>Login and signup now feel like a real product surface with stronger spacing and clearer focus states.</p>
+            </div>
+            <div class="story-card">
+              <strong>Restored service art</strong>
+              <p>Each service card now uses built-in visual art so images stay visible instead of disappearing.</p>
+            </div>
+            <div class="story-card">
+              <strong>More motion</strong>
+              <p>Reveal effects, floating highlights, and animated card lighting add energy without making the page noisy.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="featured-products-section reveal" id="services">
+          <div class="section-heading">
+            <div>
+              <h2>Explore services</h2>
+              <p>Open a service, test the flow, and watch activity appear back on this home dashboard after login.</p>
+            </div>
+          </div>
+          <div class="featured-products">
+            <article class="product-card" style="--card-accent:rgba(236,72,153,0.18);">
+              <span class="product-badge">Fashion service</span>
+              <div class="product-media"><img src="./images/fashion.svg" alt="Fashion service" loading="lazy"></div>
+              <h3>Fashion</h3>
+              <p>Dedicated fashion catalog with clothing, footwear, bags, cart, checkout, and order flow.</p>
+              <div class="product-meta"><span class="product-price">Style</span><a href="/fashion" class="card-link" data-service-name="Fashion" data-service-path="/fashion">Open</a></div>
+            </article>
+
+            <article class="product-card" style="--card-accent:rgba(66,133,244,0.22);">
+              <span class="product-badge">Mobiles service</span>
+              <div class="product-media"><img src="./images/mobiles.svg" alt="Mobiles service" loading="lazy"></div>
+              <h3>Mobiles</h3>
+              <p>Browse phones, watches, chargers, cases, and accessories in a separate mobile service.</p>
+              <div class="product-meta"><span class="product-price">Catalog</span><a href="/mobiles" class="card-link" data-service-name="Mobiles" data-service-path="/mobiles">Open</a></div>
+            </article>
+
+            <article class="product-card" style="--card-accent:rgba(190,24,93,0.18);">
+              <span class="product-badge">Beauty service</span>
+              <div class="product-media"><img src="https://loremflickr.com/520/380/beauty,skincare?lock=3131" alt="Beauty service" loading="lazy"></div>
+              <h3>Beauty</h3>
+              <p>Skincare, grooming, makeup, and personal care products with a complete shopping flow.</p>
+              <div class="product-meta"><span class="product-price">Care</span><a href="/beauty" class="card-link" data-service-name="Beauty" data-service-path="/beauty">Open</a></div>
+            </article>
+
+            <article class="product-card" style="--card-accent:rgba(26,115,232,0.16);">
+              <span class="product-badge">Electronics service</span>
+              <div class="product-media"><img src="./images/electronics.svg" alt="Electronics service" loading="lazy"></div>
+              <h3>Electronics</h3>
+              <p>Smart devices, cameras, routers, speakers, and connected home products.</p>
+              <div class="product-meta"><span class="product-price">Devices</span><a href="/electronics" class="card-link" data-service-name="Electronics" data-service-path="/electronics">Open</a></div>
+            </article>
+
+            <article class="product-card" style="--card-accent:rgba(202,138,4,0.18);">
+              <span class="product-badge">Home service</span>
+              <div class="product-media"><img src="https://loremflickr.com/520/380/home,decor?lock=3132" alt="Home service" loading="lazy"></div>
+              <h3>Home</h3>
+              <p>Home decor, kitchen tools, bedding, lighting, storage, and daily living essentials.</p>
+              <div class="product-meta"><span class="product-price">Living</span><a href="/home" class="card-link" data-service-name="Home" data-service-path="/home">Open</a></div>
+            </article>
+
+            <article class="product-card" style="--card-accent:rgba(124,58,237,0.18);">
+              <span class="product-badge">Appliances service</span>
+              <div class="product-media"><img src="https://loremflickr.com/520/380/home,appliances?lock=3133" alt="Appliances service" loading="lazy"></div>
+              <h3>Appliances</h3>
+              <p>Kitchen, cleaning, cooling, and utility appliances in their own service directory.</p>
+              <div class="product-meta"><span class="product-price">Utility</span><a href="/appliances" class="card-link" data-service-name="Appliances" data-service-path="/appliances">Open</a></div>
+            </article>
+
+            <article class="product-card" style="--card-accent:rgba(220,38,38,0.18);">
+              <span class="product-badge">Toys service</span>
+              <div class="product-media"><img src="https://loremflickr.com/520/380/toys,kids?lock=3134" alt="Toys service" loading="lazy"></div>
+              <h3>Toys, Baby &amp; Kids</h3>
+              <p>Toys, baby care, learning kits, and kids products with cart and checkout.</p>
+              <div class="product-meta"><span class="product-price">Kids</span><a href="/toys" class="card-link" data-service-name="Toys Baby Kids" data-service-path="/toys">Open</a></div>
+            </article>
+
+            <article class="product-card" style="--card-accent:rgba(52,168,83,0.18);">
+              <span class="product-badge">Food service</span>
+              <div class="product-media"><img src="./images/grocery.svg" alt="Food and health service" loading="lazy"></div>
+              <h3>Food &amp; Health</h3>
+              <p>Groceries, snacks, beverages, nutrition, and health items in a separate service.</p>
+              <div class="product-meta"><span class="product-price">Daily</span><a href="/food" class="card-link" data-service-name="Food Health" data-service-path="/food">Open</a></div>
+            </article>
+
+            <article class="product-card" style="--card-accent:rgba(8,145,178,0.18);">
+              <span class="product-badge">Auto service</span>
+              <div class="product-media"><img src="https://loremflickr.com/520/380/car,accessories?lock=3135" alt="Auto accessories service" loading="lazy"></div>
+              <h3>Auto Accessories</h3>
+              <p>Car care, chargers, mounts, cameras, organizers, and travel accessories.</p>
+              <div class="product-meta"><span class="product-price">Auto</span><a href="/auto" class="card-link" data-service-name="Auto Accessories" data-service-path="/auto">Open</a></div>
+            </article>
+
+            <article class="product-card" style="--card-accent:rgba(234,88,12,0.18);">
+              <span class="product-badge">2 Wheelers service</span>
+              <div class="product-media"><img src="https://loremflickr.com/520/380/scooter,bike?lock=3136" alt="Two wheelers service" loading="lazy"></div>
+              <h3>2 Wheelers</h3>
+              <p>Scooters, helmets, bike covers, riding gear, EV chargers, and commuter essentials.</p>
+              <div class="product-meta"><span class="product-price">Ride</span><a href="/two-wheelers" class="card-link" data-service-name="2 Wheelers" data-service-path="/two-wheelers">Open</a></div>
+            </article>
+
+            <article class="product-card" style="--card-accent:rgba(21,128,61,0.18);">
+              <span class="product-badge">Sports service</span>
+              <div class="product-media"><img src="https://loremflickr.com/520/380/sports,fitness?lock=3137" alt="Sports service" loading="lazy"></div>
+              <h3>Sports &amp; Fitness</h3>
+              <p>Cricket, gym, yoga, running, outdoor, and fitness products with the same cart flow.</p>
+              <div class="product-meta"><span class="product-price">Fitness</span><a href="/sports" class="card-link" data-service-name="Sports Fitness" data-service-path="/sports">Open</a></div>
+            </article>
+
+            <article class="product-card" style="--card-accent:rgba(147,51,234,0.18);">
+              <span class="product-badge">Books service</span>
+              <div class="product-media"><img src="https://loremflickr.com/520/380/books,stationery?lock=3138" alt="Books service" loading="lazy"></div>
+              <h3>Books &amp; Stationery</h3>
+              <p>Books, notebooks, exam prep, office supplies, and student stationery.</p>
+              <div class="product-meta"><span class="product-price">Study</span><a href="/books" class="card-link" data-service-name="Books Stationery" data-service-path="/books">Open</a></div>
+            </article>
+
+            <article class="product-card" style="--card-accent:rgba(180,83,9,0.18);">
+              <span class="product-badge">Furniture service</span>
+              <div class="product-media"><img src="https://loremflickr.com/520/380/furniture,chair?lock=3139" alt="Furniture service" loading="lazy"></div>
+              <h3>Furniture</h3>
+              <p>Chairs, desks, shelves, tables, wardrobes, and compact home setup products.</p>
+              <div class="product-meta"><span class="product-price">Home</span><a href="/furniture" class="card-link" data-service-name="Furniture" data-service-path="/furniture">Open</a></div>
+            </article>
+
+            <article class="product-card" style="--card-accent:rgba(66,133,244,0.2);">
+              <span class="product-badge">Payments service</span>
+              <div class="product-media"><img src="./images/pay.svg" alt="Google Pay" loading="lazy"></div>
+              <h3>Google Pay</h3>
+              <p>Complete payment and recharge work here, then review those records together on the dashboard below.</p>
+              <div class="product-meta"><span class="product-price">Module</span><a href="/googlepay" class="card-link" data-service-name="Google Pay" data-service-path="/googlepay">Open</a></div>
+            </article>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <section class="activity-section" id="activitySection">
+      <div class="activity-shell">
+        <div class="activity-header reveal">
+          <h2>Student activity dashboard</h2>
+          <p id="activityIntro">Login to see service opens, orders, payments, and recharges from one place.</p>
+        </div>
+        <div class="student-summary reveal">
+          <div class="summary-chip">
+            <strong id="servicesCount">0</strong>
+            <span>Microservice opens tracked</span>
+          </div>
+          <div class="summary-chip">
+            <strong id="ordersCount">0</strong>
+            <span>Orders saved in database</span>
+          </div>
+          <div class="summary-chip">
+            <strong id="paymentsCount">0</strong>
+            <span>Payments recorded</span>
+          </div>
+          <div class="summary-chip">
+            <strong id="rechargesCount">0</strong>
+            <span>Recharge actions logged</span>
+          </div>
+        </div>
+        <div class="activity-grid">
+          <div class="activity-card reveal">
+            <h3>Microservices</h3>
+            <div class="activity-list" id="servicesList">
+              <div class="activity-empty">No service activity yet.</div>
+            </div>
+          </div>
+          <div class="activity-card reveal">
+            <h3>Recent Orders</h3>
+            <div class="activity-list" id="ordersList">
+              <div class="activity-empty">No orders yet.</div>
+            </div>
+          </div>
+          <div class="activity-card reveal">
+            <h3>Payments</h3>
+            <div class="activity-list" id="paymentsList">
+              <div class="activity-empty">No payments yet.</div>
+            </div>
+          </div>
+          <div class="activity-card reveal">
+            <h3>Recharges</h3>
+            <div class="activity-list" id="rechargesList">
+              <div class="activity-empty">No recharges yet.</div>
+            </div>
+          </div>
+        </div>
+        <div class="orders-panel reveal" id="ordersPanel">
+          <div class="orders-panel-header">
+            <div>
+              <h3>All Orders</h3>
+              <p id="ordersPanelIntro">Login to load every order with status and item details.</p>
+            </div>
+            <button class="marketplace-action-button" id="refreshOrdersBtn" type="button">
+              <span class="material-symbols-outlined">refresh</span>
+              <span>Refresh</span>
+            </button>
+          </div>
+          <div class="orders-list-full" id="allOrdersList">
+            <div class="activity-empty">No orders yet.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="student-focus-section reveal">
+      <div class="student-focus-copy">
+        <span class="material-symbols-outlined icon">auto_awesome</span>
+        <h2>Cleaner for demos, clearer for students, and ready to show backend activity live.</h2>
+        <p>This home page is now more like a practical lab dashboard: fewer filler sections, stronger service entry points, and live history pulled from the database.</p>
+      </div>
+      <div class="student-focus-panel">
+        <div class="student-focus-point">
+          <strong>Microservice tracking</strong>
+          <span>Every service opened from the home page is stored in MySQL and shown in the dashboard feed.</span>
+        </div>
+        <div class="student-focus-point">
+          <strong>Shared backend story</strong>
+          <span>Orders, payments, recharges, and service activity now appear together so the architecture is easier to explain.</span>
+        </div>
+        <div class="student-focus-point">
+          <strong>Presentation-friendly UI</strong>
+          <span>Cards are cleaner, copy is simpler, and the page focuses attention on actions and results instead of filler text.</span>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer reveal">
+      <div class="logo-google-store">
+        <img src="https://latestlogo.com/wp-content/uploads/2024/01/google-store-logo.png" alt="Google Store Logo">
+      </div>
+      <div class="footer-copy">Student-ready multicloud microservices home page with live database-backed activity.</div>
+    </footer>
+  </div>
+
+  <script>
+    const API_BASE = "/api";
+    const USER_KEY = "googleStoreUser";
+    const SERVICE_API_QUEUE_KEY = "googleStoreApiQueue";
+    const LOGIN_EXPIRE_MINUTES = 60;
+
+    let signupStep = 1;
+    let loginStep = 1;
+    let isLoggedIn = false;
+
+    const msgBox = document.getElementById("msg");
+    const navbarProfile = document.getElementById("navbarProfile");
+    const navbarAvatar = document.getElementById("navbarAvatar");
+    const navbarProfileUsername = document.getElementById("navbarProfileUsername");
+    const navbarProfileEmail = document.getElementById("navbarProfileEmail");
+    const navbarLogoutBtn = document.getElementById("navbarLogoutBtn");
+    const navbarLoginBtn = document.getElementById("navbar-login-btn");
+    const navbarSignupBtn = document.getElementById("navbar-signup-btn");
+    const navbarOrdersBtn = document.getElementById("navbar-orders-btn");
+    const activityIntro = document.getElementById("activityIntro");
+    const servicesList = document.getElementById("servicesList");
+    const ordersList = document.getElementById("ordersList");
+    const allOrdersList = document.getElementById("allOrdersList");
+    const ordersPanel = document.getElementById("ordersPanel");
+    const ordersPanelIntro = document.getElementById("ordersPanelIntro");
+    const refreshOrdersBtn = document.getElementById("refreshOrdersBtn");
+    const paymentsList = document.getElementById("paymentsList");
+    const rechargesList = document.getElementById("rechargesList");
+    const servicesCount = document.getElementById("servicesCount");
+    const ordersCount = document.getElementById("ordersCount");
+    const paymentsCount = document.getElementById("paymentsCount");
+    const rechargesCount = document.getElementById("rechargesCount");
+    const authModalOverlay = document.getElementById("authModalOverlay");
+
+    function onUserAuthenticated({ username, email }) {
+      if (navbarAvatar) navbarAvatar.textContent = username?.charAt(0).toUpperCase() || "?";
+      if (navbarProfileUsername) navbarProfileUsername.textContent = username || "";
+      if (navbarProfileEmail) navbarProfileEmail.textContent = email || "";
+
+      if (navbarProfile) {
+        navbarProfile.classList.add("show");
+        navbarProfile.style.display = "flex";
+      }
+      if (navbarLoginBtn) navbarLoginBtn.style.display = "none";
+      if (navbarSignupBtn) navbarSignupBtn.style.display = "none";
+
+      const profileAvatar = document.getElementById("avatar");
+      const profileName = document.getElementById("profile-name");
+      const profileEmail = document.getElementById("profile-email");
+      if (profileAvatar) profileAvatar.textContent = username?.charAt(0).toUpperCase() || "?";
+      if (profileName) profileName.textContent = username || "";
+      if (profileEmail) profileEmail.textContent = email || "";
+
+      isLoggedIn = true;
+      saveUserSession({ username, email });
+      loadUserHistory(email);
+      processQueuedServiceRequests();
+    }
+
+    function onUserLoggedOut() {
+      if (navbarProfile) {
+        navbarProfile.classList.remove("show");
+        navbarProfile.style.display = "none";
+      }
+      if (navbarLoginBtn) navbarLoginBtn.style.display = "inline-flex";
+      if (navbarSignupBtn) navbarSignupBtn.style.display = "inline-flex";
+
+      isLoggedIn = false;
+      clearUserSession();
+      clearActivity();
+    }
+
+    function renderActivityList(container, items, emptyText, renderer) {
+      if (!container) return;
+      if (!items || !items.length) {
+        container.innerHTML = `<div class="activity-empty">${emptyText}</div>`;
+        return;
+      }
+      container.innerHTML = items.slice(0, 5).map(renderer).join("");
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>'"]/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "'": "&#39;",
+        '"': "&quot;"
+      }[char]));
+    }
+
+    function formatHistoryDate(value) {
+      if (!value) return "Unknown date";
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? value : date.toLocaleString();
+    }
+
+    function clearActivity() {
+      if (activityIntro) activityIntro.textContent = "Login to see service opens, orders, payments, and recharges from one place.";
+      resetActivityLists();
+    }
+
+    function resetActivityLists() {
+      renderActivityList(servicesList, [], "No service activity yet.", () => "");
+      renderActivityList(ordersList, [], "No orders yet.", () => "");
+      renderAllOrders([]);
+      renderActivityList(paymentsList, [], "No payments yet.", () => "");
+      renderActivityList(rechargesList, [], "No recharges yet.", () => "");
+      updateDashboardCounts({});
+    }
+
+    function renderAllOrders(orders = []) {
+      if (!allOrdersList) return;
+      if (!orders.length) {
+        allOrdersList.innerHTML = `<div class="activity-empty">No orders yet.</div>`;
+        if (ordersPanelIntro) ordersPanelIntro.textContent = "No order records found for this account.";
+        return;
+      }
+
+      if (ordersPanelIntro) ordersPanelIntro.textContent = `${orders.length} order(s) loaded with status and item details.`;
+      allOrdersList.innerHTML = orders.map((order) => {
+        const items = order.items || [];
+        const itemsHtml = items.length
+          ? items.map((item) => `
+              <div class="order-item-row">
+                <span>${escapeHtml(item.product_name || "Product")} x ${Number(item.quantity || 0)}</span>
+                <strong>Rs. ${Number(item.subtotal || 0).toLocaleString("en-IN")}</strong>
+              </div>
+            `).join("")
+          : `<div class="activity-empty">No item details saved.</div>`;
+
+        return `
+          <div class="order-detail-card">
+            <div class="order-detail-top">
+              <div>
+                <strong>Order #${escapeHtml(order.id)} - Rs. ${Number(order.total_amount || 0).toLocaleString("en-IN")}</strong>
+                <div class="activity-meta">${formatHistoryDate(order.created_at)}</div>
+              </div>
+              <span class="order-status-pill">${escapeHtml(order.status || "placed")}</span>
+            </div>
+            <div class="activity-meta"><strong>Name:</strong> ${escapeHtml(order.shipping_name || "Customer")}</div>
+            <div class="activity-meta"><strong>Email:</strong> ${escapeHtml(order.shipping_email || "")}</div>
+            <div class="activity-meta"><strong>Phone:</strong> ${escapeHtml(order.shipping_phone || "Not provided")}</div>
+            <div class="activity-meta"><strong>Address:</strong> ${escapeHtml(order.shipping_address || "No shipping address saved")}</div>
+            <div class="order-items">${itemsHtml}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function updateDashboardCounts(history) {
+      if (servicesCount) servicesCount.textContent = String((history.service_activity || []).length || 0);
+      if (ordersCount) ordersCount.textContent = String((history.orders || []).length || 0);
+      if (paymentsCount) paymentsCount.textContent = String((history.payments || []).length || 0);
+      if (rechargesCount) rechargesCount.textContent = String((history.recharges || []).length || 0);
+    }
+
+    async function loadUserHistory(email) {
+      if (!email) {
+        clearActivity();
+        return;
+      }
+
+      if (activityIntro) activityIntro.textContent = `Showing recent activity for ${email}`;
+
+      try {
+        const res = await fetch(`${API_BASE}/history?email=${encodeURIComponent(email)}`);
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || "Unable to load activity");
+        }
+
+        updateDashboardCounts(data);
+        renderAllOrders(data.orders || []);
+
+        renderActivityList(
+          servicesList,
+          data.service_activity,
+          "No service activity yet.",
+          (activity) => `
+            <div class="activity-item service-activity-item">
+              <strong>${activity.service_name || "Service"}</strong>
+              <div class="activity-meta">${activity.activity_type || "open"} - ${formatHistoryDate(activity.created_at)}</div>
+              <div class="activity-meta">${activity.note || activity.service_path || "Opened from the student dashboard"}</div>
+            </div>
+          `
+        );
+
+        renderActivityList(
+          ordersList,
+          data.orders,
+          "No orders yet.",
+          (order) => `
+            <div class="activity-item">
+              <strong>Order #${order.id} - Rs. ${Number(order.total_amount || 0).toLocaleString("en-IN")}</strong>
+              <div class="activity-meta">${order.status || "placed"} - ${formatHistoryDate(order.created_at)}</div>
+              <div class="activity-meta">${(order.items || []).length} item(s)</div>
+              <div class="activity-meta">${order.shipping_address || "No shipping address saved"}</div>
+            </div>
+          `
+        );
+
+        renderActivityList(
+          paymentsList,
+          data.payments,
+          "No payments yet.",
+          (payment) => `
+            <div class="activity-item">
+              <strong>${payment.payment_method || "Payment"} - Rs. ${Number(payment.amount || 0).toLocaleString("en-IN")}</strong>
+              <div class="activity-meta">${payment.payment_type || "payment"} - ${payment.status || "paid"}</div>
+              <div class="activity-meta">${formatHistoryDate(payment.created_at)}</div>
+            </div>
+          `
+        );
+
+        renderActivityList(
+          rechargesList,
+          data.recharges,
+          "No recharges yet.",
+          (recharge) => `
+            <div class="activity-item">
+              <strong>${recharge.mobile_number} - Rs. ${Number(recharge.amount || 0).toLocaleString("en-IN")}</strong>
+              <div class="activity-meta">${recharge.operator_name || "Operator"} - ${recharge.payment_method || "payment"}</div>
+              <div class="activity-meta">${formatHistoryDate(recharge.created_at)}</div>
+            </div>
+          `
+        );
+      } catch (error) {
+        if (activityIntro) activityIntro.textContent = error.message || "Unable to load activity right now.";
+        resetActivityLists();
+      }
+    }
+
+    async function mainApiRequest(path, options = {}) {
+      const response = await fetch(`${API_BASE}${path}`, {
+        headers: { "Content-Type": "application/json", ...(options.headers || {}) },
+        ...options
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || "Request failed");
+      return data;
+    }
+
+    function readQueuedServiceRequests() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(SERVICE_API_QUEUE_KEY) || "[]");
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function writeQueuedServiceRequests(requests) {
+      localStorage.setItem(SERVICE_API_QUEUE_KEY, JSON.stringify(requests));
+    }
+
+    async function processQueuedServiceRequests() {
+      const user = loadUserSession();
+      const requests = readQueuedServiceRequests();
+      if (!user?.email || !requests.length) return;
+
+      const remaining = [];
+      let syncedCount = 0;
+
+      for (const request of requests) {
+        const body = typeof request.body === "string" ? JSON.parse(request.body || "{}") : (request.body || {});
+        if (body.email && body.email !== user.email) {
+          remaining.push(request);
+          continue;
+        }
+
+        try {
+          await mainApiRequest(request.path, {
+            method: request.method || "POST",
+            body: JSON.stringify({ ...body, email: body.email || user.email })
+          });
+          syncedCount += 1;
+        } catch (error) {
+          remaining.push(request);
+          console.error("Queued service sync failed", error);
+        }
+      }
+
+      writeQueuedServiceRequests(remaining);
+      if (syncedCount) {
+        showMessage(`${syncedCount} service action(s) synced through the main page.`, "success");
+        loadUserHistory(user.email);
+      }
+    }
+
+    function trackServiceActivity(serviceName, servicePath) {
+      const user = loadUserSession();
+      if (!user?.email || !serviceName) return;
+
+      fetch(`${API_BASE}/service-activity`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: user.email,
+          service_name: serviceName,
+          service_path: servicePath,
+          activity_type: "open",
+          note: "Opened from home page"
+        }),
+        keepalive: true
+      }).catch(() => {});
+    }
+
+    function initServiceTracking() {
+      document.querySelectorAll("a[data-service-name]").forEach((link) => {
+        link.addEventListener("click", () => {
+          trackServiceActivity(link.dataset.serviceName, link.dataset.servicePath || link.getAttribute("href"));
+        });
+      });
+    }
+
+    function isProtectedServiceLink(target) {
+      const link = target.closest("a");
+      if (!link) return null;
+      const href = link.getAttribute("href") || "";
+      const serviceRoutes = new Set([
+        "/fashion",
+        "/mobiles",
+        "/beauty",
+        "/electronics",
+        "/home",
+        "/appliances",
+        "/toys",
+        "/food",
+        "/auto",
+        "/two-wheelers",
+        "/sports",
+        "/books",
+        "/furniture",
+        "/googlepay",
+        "/computers",
+        "/earphones",
+        "/googlegrocery",
+        "/googlemusic"
+      ]);
+      const isServiceCard = link.matches(".card-link[data-service-name]");
+      const isTopServiceNav = link.matches(".nav-pill") && serviceRoutes.has(href);
+      const isHeroServiceCta = link.matches("#cta-button") && serviceRoutes.has(href);
+      return isServiceCard || isTopServiceNav || isHeroServiceCta ? link : null;
+    }
+
+    function logout() {
+      toggleForm("login");
+      const profileModal = document.getElementById("profile");
+      if (profileModal) profileModal.style.display = "none";
+      document.getElementById("switchText").style.display = "block";
+      document.getElementById("formTitle").textContent = "Login";
+      document.querySelector(".auth-subtitle").textContent = "Welcome back. Sign in to continue exploring the services on this page.";
+      showMessage("Logged out successfully.", "success");
+      onUserLoggedOut();
+    }
+
+    function toggleForm(mode) {
+      signupStep = 1;
+      loginStep = 1;
+
+      const suInputs = document.getElementById("su-inputs");
+      const liInputs = document.getElementById("li-inputs");
+      const suOtpBlock = document.getElementById("su-otp-block");
+      const liOtpBlock = document.getElementById("li-otp-block");
+      const signupForm = document.getElementById("signupForm");
+      const loginForm = document.getElementById("loginForm");
+      const title = document.getElementById("formTitle");
+      const switchText = document.getElementById("switchText");
+      const subtitle = document.querySelector(".auth-subtitle");
+
+      [suInputs, liInputs, suOtpBlock, liOtpBlock].forEach((el) => {
+        if (el) {
+          el.style.flexDirection = "column";
+          el.style.gap = "12px";
+        }
+      });
+
+      suInputs.style.display = "flex";
+      suOtpBlock.style.display = "none";
+      resetAuthButtonLoading("su-btn", "Create Account");
+
+      liInputs.style.display = "flex";
+      liOtpBlock.style.display = "none";
+      resetAuthButtonLoading("li-btn", "Login");
+
+      msgBox.style.display = "none";
+
+      if (mode === "login") {
+        signupForm.style.display = "none";
+        loginForm.style.display = "flex";
+        title.textContent = "Login";
+        subtitle.textContent = "Welcome back. Sign in to continue exploring the services on this page.";
+        switchText.innerHTML = `Don't have an account? <a href="#" onclick="toggleForm('signup'); return false;">Sign up</a>`;
+      } else {
+        loginForm.style.display = "none";
+        signupForm.style.display = "flex";
+        title.textContent = "Sign Up";
+        subtitle.textContent = "Create your account to unlock shopping, checkout, and personalized activity.";
+        switchText.innerHTML = `Already have an account? <a href="#" onclick="toggleForm('login'); return false;">Login</a>`;
+      }
+      switchText.style.display = "block";
+    }
+
+    function validatePasswordStrength(password) {
+      if (password.length < 8) return "Password must be at least 8 characters.";
+      if (!/[A-Z]/.test(password)) return "Password must include at least one uppercase letter.";
+      if (!/[a-z]/.test(password)) return "Password must include at least one lowercase letter.";
+      if (!/[0-9]/.test(password)) return "Password must include at least one number.";
+      if (!/[^A-Za-z0-9]/.test(password)) return "Password must include at least one special character.";
+      return "";
+    }
+
+    function setAuthButtonLoading(buttonId, text) {
+      const button = document.getElementById(buttonId);
+      if (!button) return;
+      button.dataset.originalText = button.dataset.originalText || button.innerText;
+      button.innerText = text;
+      button.disabled = true;
+      button.classList.add("is-loading");
+    }
+
+    function resetAuthButtonLoading(buttonId, fallbackText) {
+      const button = document.getElementById(buttonId);
+      if (!button) return;
+      button.disabled = false;
+      button.classList.remove("is-loading");
+      button.innerText = fallbackText || button.dataset.originalText || button.innerText;
+    }
+
+    function animateAuthOpen(button) {
+      if (button) {
+        button.classList.add("is-opening");
+        setTimeout(() => button.classList.remove("is-opening"), 420);
+      }
+      if (authModalOverlay) {
+        authModalOverlay.classList.remove("auth-pulse");
+        void authModalOverlay.offsetWidth;
+        authModalOverlay.classList.add("auth-pulse");
+      }
+    }
+
+    async function signup() {
+      const username = document.getElementById("su-username").value.trim();
+      const email = document.getElementById("su-email").value.trim();
+      const password = document.getElementById("su-password").value.trim();
+      const otp = document.getElementById("su-otp").value.trim();
+
+      if (signupStep === 1) {
+        if (!username || !email || !password) return showMessage("All fields required.", "error");
+        const passwordError = validatePasswordStrength(password);
+        if (passwordError) return showMessage(passwordError, "error");
+        setAuthButtonLoading("su-btn", "Sending OTP...");
+        showMessage("Sending OTP, please wait...", "info");
+        try {
+          const res = await fetch(`${API_BASE}/signup/request`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, email, password })
+          });
+          const data = await res.json();
+          if (res.ok) {
+            signupStep = 2;
+            document.getElementById("su-inputs").style.display = "none";
+            document.getElementById("su-otp-block").style.display = "flex";
+            resetAuthButtonLoading("su-btn", "Verify & Register");
+            showMessage("OTP sent to your email!", "success");
+          } else {
+            showMessage(data.error || "Signup failed", "error");
+            resetAuthButtonLoading("su-btn", "Create Account");
+          }
+        } catch (err) {
+          showMessage("Server error.", "error");
+          resetAuthButtonLoading("su-btn", "Create Account");
+        }
+      } else {
+        if (!otp) return showMessage("Please enter OTP.", "error");
+        setAuthButtonLoading("su-btn", "Verifying...");
+        showMessage("Verifying registration OTP...", "info");
+        try {
+          const res = await fetch(`${API_BASE}/signup/verify`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, otp })
+          });
+          const data = await res.json();
+          if (res.ok) {
+            showMessage("Registration successful!", "success");
+            setTimeout(() => {
+              onUserAuthenticated({ username, email });
+              closeAuthModal();
+            }, 550);
+          } else {
+            showMessage(data.error || "Invalid OTP", "error");
+            resetAuthButtonLoading("su-btn", "Verify & Register");
+          }
+        } catch (err) {
+          showMessage("Server error.", "error");
+          resetAuthButtonLoading("su-btn", "Verify & Register");
+        }
+      }
+    }
+
+    async function login() {
+      const email = document.getElementById("li-email").value.trim();
+      const password = document.getElementById("li-password").value.trim();
+      const otp = document.getElementById("li-otp").value.trim();
+
+      if (loginStep === 1) {
+        if (!email || !password) return showMessage("Fields required.", "error");
+        setAuthButtonLoading("li-btn", "Checking...");
+        showMessage("Checking your login details...", "info");
+        try {
+          const res = await fetch(`${API_BASE}/login/request`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+          });
+          const data = await res.json();
+          if (res.ok) {
+            if (data.otp_required === false && data.user) {
+              showMessage("Login successful!", "success");
+              onUserAuthenticated({ username: data.user.username, email: data.user.email });
+              setTimeout(closeAuthModal, 450);
+            } else {
+              loginStep = 2;
+              document.getElementById("li-inputs").style.display = "none";
+              document.getElementById("li-otp-block").style.display = "flex";
+              resetAuthButtonLoading("li-btn", "Verify Security Code");
+              showMessage("OTP sent to email!", "success");
+            }
+          } else {
+            showMessage(data.error || "Login failed", "error");
+            resetAuthButtonLoading("li-btn", "Login");
+          }
+        } catch (err) {
+          showMessage("Server error.", "error");
+          resetAuthButtonLoading("li-btn", "Login");
+        }
+      } else {
+        if (!otp) return showMessage("Please enter OTP.", "error");
+        setAuthButtonLoading("li-btn", "Verifying...");
+        showMessage("Verifying security code...", "info");
+        try {
+          const res = await fetch(`${API_BASE}/login/verify`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, otp })
+          });
+          const data = await res.json();
+          if (res.ok) {
+            showMessage("Login successful!", "success");
+            onUserAuthenticated({ username: data.user.username, email: data.user.email });
+            setTimeout(closeAuthModal, 450);
+          } else {
+            showMessage(data.error || "Invalid OTP", "error");
+            resetAuthButtonLoading("li-btn", "Verify Security Code");
+          }
+        } catch (err) {
+          showMessage("Server error.", "error");
+          resetAuthButtonLoading("li-btn", "Verify Security Code");
+        }
+      }
+    }
+
+    function saveUserSession(user) {
+      const data = { ...user, t: Date.now() };
+      localStorage.setItem(USER_KEY, JSON.stringify(data));
+    }
+
+    function loadUserSession() {
+      const data = localStorage.getItem(USER_KEY);
+      if (!data) return null;
+      try {
+        const parsed = JSON.parse(data);
+        if (Date.now() - parsed.t > LOGIN_EXPIRE_MINUTES * 60000) {
+          localStorage.removeItem(USER_KEY);
+          return null;
+        }
+        return { username: parsed.username, email: parsed.email };
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function clearUserSession() {
+      localStorage.removeItem(USER_KEY);
+    }
+
+    function showMessage(text, type) {
+      msgBox.textContent = text;
+      msgBox.className = `message ${type}`;
+      msgBox.style.display = "block";
+      setTimeout(() => {
+        msgBox.style.display = "none";
+      }, 4000);
+    }
+
+    function openAuthModal(mode = "signup") {
+      toggleForm(mode);
+      document.body.classList.add("modal-open");
+      authModalOverlay.classList.add("open");
+    }
+
+    function closeAuthModal() {
+      authModalOverlay.classList.remove("open");
+      document.body.classList.remove("modal-open");
+    }
+
+    function initAuthEnterKeySubmit() {
+      const signupForm = document.getElementById("signupForm");
+      const loginForm = document.getElementById("loginForm");
+
+      if (signupForm) {
+        signupForm.addEventListener("keydown", function(event) {
+          if (event.key !== "Enter") return;
+          event.preventDefault();
+          const button = document.getElementById("su-btn");
+          if (!button || button.disabled) return;
+          signup();
+        });
+      }
+
+      if (loginForm) {
+        loginForm.addEventListener("keydown", function(event) {
+          if (event.key !== "Enter") return;
+          event.preventDefault();
+          const button = document.getElementById("li-btn");
+          if (!button || button.disabled) return;
+          login();
+        });
+      }
+    }
+
+    function initRevealAnimations() {
+      const revealItems = document.querySelectorAll(".reveal");
+      if (!("IntersectionObserver" in window)) {
+        revealItems.forEach((item) => item.classList.add("visible"));
+        return;
+      }
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.15 });
+      revealItems.forEach((item) => observer.observe(item));
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      initRevealAnimations();
+      initServiceTracking();
+      initAuthEnterKeySubmit();
+
+      const remembered = loadUserSession();
+      if (remembered) onUserAuthenticated(remembered);
+      else clearActivity();
+
+      if (navbarLoginBtn) navbarLoginBtn.onclick = () => {
+        animateAuthOpen(navbarLoginBtn);
+        openAuthModal("login");
+        return false;
+      };
+      if (navbarSignupBtn) navbarSignupBtn.onclick = () => {
+        animateAuthOpen(navbarSignupBtn);
+        openAuthModal("signup");
+        return false;
+      };
+      if (navbarOrdersBtn) navbarOrdersBtn.onclick = () => {
+        const user = loadUserSession();
+        if (!user?.email) {
+          showMessage("Please login to view your orders.", "error");
+          animateAuthOpen(navbarOrdersBtn);
+          openAuthModal("login");
+          return false;
+        }
+        loadUserHistory(user.email);
+        ordersPanel?.scrollIntoView({ behavior: "smooth", block: "start" });
+        return false;
+      };
+      if (refreshOrdersBtn) refreshOrdersBtn.onclick = () => {
+        const user = loadUserSession();
+        if (user?.email) loadUserHistory(user.email);
+      };
+      if (navbarLogoutBtn) navbarLogoutBtn.onclick = () => logout();
+
+      const closeBtn = document.getElementById("closeAuthModal");
+      if (closeBtn) closeBtn.onclick = () => closeAuthModal();
+
+      if (authModalOverlay) {
+        authModalOverlay.addEventListener("click", function(event) {
+          if (event.target === authModalOverlay) closeAuthModal();
+        });
+      }
+
+      document.addEventListener("keydown", function(event) {
+        if (event.key === "Escape" && authModalOverlay.classList.contains("open")) {
+          closeAuthModal();
+        }
+      });
+
+      document.body.addEventListener("click", function(event) {
+        const protectedAction = event.target.closest("[data-requires-auth]") || isProtectedServiceLink(event.target);
+        if (!protectedAction || isLoggedIn) return;
+        event.preventDefault();
+        showMessage("Please login to access this feature.", "error");
+        setTimeout(() => {
+          animateAuthOpen(navbarLoginBtn);
+          openAuthModal("login");
+        }, 250);
+      }, true);
+    });
+  </script>
+</body>
+</html>
