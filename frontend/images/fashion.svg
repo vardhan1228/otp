@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 220">
+  <defs>
+    <linearGradient id="bg" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#f472b6"/>
+      <stop offset="100%" stop-color="#fb7185"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="220" rx="34" fill="url(#bg)"/>
+  <circle cx="262" cy="52" r="42" fill="rgba(255,255,255,0.18)"/>
+  <circle cx="58" cy="174" r="36" fill="rgba(255,255,255,0.14)"/>
+  <rect x="34" y="34" width="252" height="152" rx="28" fill="rgba(255,255,255,0.16)" stroke="rgba(255,255,255,0.28)"/>
+  <path d="M132 84l10-16h36l10 16 20 12-12 56h-72l-12-56z" fill="#0f172a" opacity="0.92"/>
+  <path d="M144 68c0 8 6 14 16 14s16-6 16-14" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round"/>
+  <text x="160" y="185" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#111827">Fashion</text>
+  <text x="160" y="202" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#475569">Style picks</text>
+</svg>

@@ -44,9 +44,8 @@
             background: var(--gradient);
             color: white;
             padding: 1rem 0;
-            position: fixed;
+            position: relative;
             width: 100%;
-            top: 0;
             z-index: 1000;
             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
@@ -410,6 +409,34 @@
             padding-top: 1rem;
             margin-top: 1rem;
         }
+        .scanner-payment {
+            display: grid;
+            grid-template-columns: minmax(160px, 220px) 1fr;
+            gap: 1rem;
+            align-items: center;
+            background: var(--light);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .scanner-payment img {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: contain;
+            background: white;
+            border-radius: 10px;
+            padding: 0.75rem;
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+        }
+        .scanner-payment h4 {
+            margin: 0 0 0.35rem;
+            color: var(--dark);
+        }
+        .scanner-payment p {
+            margin: 0;
+            color: var(--gray);
+            line-height: 1.5;
+        }
         /* Features */
         .features {
             padding: 5rem 2rem;
@@ -538,6 +565,14 @@
         }
         /* Responsive */
         @media (max-width: 768px) {
+            .scanner-payment {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            .scanner-payment img {
+                max-width: 220px;
+                margin: 0 auto;
+            }
             .nav-links {
                 display: none;
                 position: absolute;
@@ -639,7 +674,7 @@
     </style>
 <style>
 .home-back-button {
-  position: fixed;
+  position: absolute;
   top: 88px;
   left: 20px;
   z-index: 1400;
@@ -1102,6 +1137,17 @@
         <span id="toastMessage"></span>
     </div>
     <script>
+        const API_BASE = "http://localhost:5000/api";
+        const USER_KEY = "googleStoreUser";
+
+        function getCurrentUser() {
+            try {
+                return JSON.parse(localStorage.getItem(USER_KEY) || "null");
+            } catch (error) {
+                return null;
+            }
+        }
+
         // Sample Plans Data
         const plans = {
             airtel: {
@@ -1330,6 +1376,13 @@
             let formHTML = '';
             if (method === 'upi') {
                 formHTML = `
+                    <div class="scanner-payment">
+                        <img src="scan.jpg" alt="UPI scanner code">
+                        <div>
+                            <h4>Scan and pay</h4>
+                            <p>Use any UPI app to scan this code, then tap Pay Now to save your recharge.</p>
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label>UPI ID</label>
                         <div class="input-group">
@@ -1404,18 +1457,48 @@
             document.getElementById('summaryTotal').textContent = `₹${selectedAmount}`;
         }
         // Form Submission
-        rechargeForm.addEventListener('submit', (e) => {
+        rechargeForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
             if (!validateCurrentStep()) return;
+
+            const currentUser = getCurrentUser();
+            if (!currentUser || !currentUser.email) {
+                showToast('Please login on the home page before making a payment.', 'error');
+                return;
+            }
 
             // Show loading
             loading.style.display = 'flex';
             payBtn.disabled = true;
             payBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
 
-            // Simulate API call
-            setTimeout(() => {
+            try {
+                const mobile = document.getElementById('mobile').value;
+                const planName = selectedPlan
+                    ? `${selectedPlan.amount} - ${selectedPlan.details}`
+                    : `Custom Amount ${selectedAmount}`;
+                const transactionReference = `GPAY-${Date.now()}`;
+
+                const response = await fetch(`${API_BASE}/recharges`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: currentUser.email,
+                        mobile_number: mobile,
+                        operator_name: selectedOperator,
+                        plan_name: planName,
+                        amount: selectedAmount,
+                        payment_method: selectedPaymentMethod,
+                        status: 'success',
+                        transaction_reference: transactionReference
+                    })
+                });
+                const result = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    throw new Error(result.error || 'Payment failed');
+                }
+
                 loading.style.display = 'none';
                 payBtn.disabled = false;
                 payBtn.innerHTML = 'Pay Now <i class="fas fa-lock"></i>';
@@ -1446,7 +1529,12 @@
                     successMessage.removeEventListener('click', blockInteraction);
                     successMessage.removeEventListener('touchstart', blockInteraction);
                 }, 5000);
-            }, 3000);
+            } catch (error) {
+                loading.style.display = 'none';
+                payBtn.disabled = false;
+                payBtn.innerHTML = 'Pay Now <i class="fas fa-lock"></i>';
+                showToast(error.message || 'Payment failed. Please try again.', 'error');
+            }
         });
         function resetForm() {
             // Instead of reloading, just reset all fields and UI to initial state
@@ -1538,3 +1626,4 @@
     </script>
 </body>
 </html>
+

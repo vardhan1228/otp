@@ -1,6 +1,7 @@
 import os
 import random
 import re
+import threading
 from datetime import datetime, timedelta
 
 import pymysql
@@ -12,11 +13,24 @@ load_dotenv()
 
 app = Flask(__name__)
 
+@app.before_request
+def handle_cors_preflight():
+    if request.method == "OPTIONS":
+        return "", 204
+
+
+@app.after_request
+def add_cors_headers(response):
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+    return response
+
 
 db_config = {
-    "host": os.getenv("DB_HOST", "localhost"),
-    "user": os.getenv("DB_USER", "root"),
-    "password": os.getenv("DB_PASSWORD", "root"),
+    "host": os.getenv("DB_HOST", ""),
+    "user": os.getenv("DB_USER", ""),
+    "password": os.getenv("DB_PASSWORD", ""),
     "database": os.getenv("DB_NAME", "cloud"),
 }
 
@@ -247,6 +261,17 @@ def send_order_receipt_email(order_payload):
     mail.send(msg)
 
 
+def send_order_receipt_email_async(order_payload):
+    def worker():
+        try:
+            with app.app_context():
+                send_order_receipt_email(order_payload)
+        except Exception as exc:
+            app.logger.exception("Order receipt email failed: %s", exc)
+
+    threading.Thread(target=worker, daemon=True).start()
+
+
 def ensure_service_activity_table(cursor):
     cursor.execute(
         """
@@ -260,6 +285,41 @@ def ensure_service_activity_table(cursor):
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             CONSTRAINT fk_service_activity_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+        """
+    )
+
+
+def ensure_order_tables(cursor):
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS orders (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL,
+            shipping_name VARCHAR(150) NOT NULL,
+            shipping_email VARCHAR(150) NOT NULL,
+            shipping_address TEXT NOT NULL,
+            shipping_phone VARCHAR(20) DEFAULT NULL,
+            total_amount DECIMAL(10, 2) NOT NULL,
+            status VARCHAR(50) NOT NULL DEFAULT 'placed',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            CONSTRAINT fk_orders_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+        """
+    )
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS order_items (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            order_id INT NOT NULL,
+            product_id VARCHAR(100) NOT NULL,
+            product_name VARCHAR(255) NOT NULL,
+            product_image TEXT DEFAULT NULL,
+            price DECIMAL(10, 2) NOT NULL,
+            quantity INT NOT NULL DEFAULT 1,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            CONSTRAINT fk_order_items_order FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
         )
         """
     )
@@ -703,6 +763,7 @@ def delete_cart_item():
 
 
 @app.route("/api/orders", methods=["POST"])
+@app.route("/api/orders/", methods=["POST"])
 def create_order():
     data = get_json_payload()
     validation_error = require_fields(data, ["email", "shipping_name", "shipping_address"])
@@ -723,6 +784,7 @@ def create_order():
     order_payload = None
     try:
         with conn.cursor() as cursor:
+            ensure_order_tables(cursor)
             user = fetch_user_by_email(cursor, email)
             if not user:
                 return jsonify({"error": "User not found"}), 404
@@ -802,13 +864,7 @@ def create_order():
             }
             conn.commit()
 
-            email_sent = True
-            email_error = None
-            try:
-                send_order_receipt_email(order_payload)
-            except Exception as mail_exc:
-                email_sent = False
-                email_error = str(mail_exc)
+            send_order_receipt_email_async(order_payload)
 
             return (
                 jsonify(
@@ -816,8 +872,8 @@ def create_order():
                         "message": "Order placed successfully",
                         "order_id": order_id,
                         "total_amount": cart["total"],
-                        "email_sent": email_sent,
-                        "email_error": email_error,
+                        "email_queued": True,
+                        "email_message": "Receipt email is being sent in the background.",
                         "order": order_payload,
                     }
                 ),
@@ -831,6 +887,7 @@ def create_order():
 
 
 @app.route("/api/orders", methods=["GET"])
+@app.route("/api/orders/", methods=["GET"])
 def get_orders():
     email = request.args.get("email", "").strip().lower()
     if not email:
@@ -839,6 +896,7 @@ def get_orders():
     conn = get_db_connection()
     try:
         with conn.cursor() as cursor:
+            ensure_order_tables(cursor)
             user = fetch_user_by_email(cursor, email)
             if not user:
                 return jsonify({"error": "User not found"}), 404
@@ -886,6 +944,7 @@ def get_orders():
 
 
 @app.route("/api/payments", methods=["POST"])
+@app.route("/api/payments/", methods=["POST"])
 def create_payment():
     data = get_json_payload()
     validation_error = require_fields(data, ["email", "payment_method", "amount"])
@@ -923,6 +982,7 @@ def create_payment():
 
 
 @app.route("/api/payments", methods=["GET"])
+@app.route("/api/payments/", methods=["GET"])
 def get_payments():
     email = request.args.get("email", "").strip().lower()
     if not email:
@@ -952,6 +1012,7 @@ def get_payments():
 
 
 @app.route("/api/recharges", methods=["POST"])
+@app.route("/api/recharges/", methods=["POST"])
 def create_recharge():
     data = get_json_payload()
     validation_error = require_fields(
@@ -1018,6 +1079,7 @@ def create_recharge():
 
 
 @app.route("/api/recharges", methods=["GET"])
+@app.route("/api/recharges/", methods=["GET"])
 def get_recharges():
     email = request.args.get("email", "").strip().lower()
     if not email:
@@ -1047,6 +1109,7 @@ def get_recharges():
 
 
 @app.route("/api/service-activity", methods=["POST"])
+@app.route("/api/service-activity/", methods=["POST"])
 def create_service_activity():
     data = get_json_payload()
     validation_error = require_fields(data, ["email", "service_name"])
@@ -1081,6 +1144,7 @@ def create_service_activity():
 
 
 @app.route("/api/service-activity", methods=["GET"])
+@app.route("/api/service-activity/", methods=["GET"])
 def get_service_activity():
     email = request.args.get("email", "").strip().lower()
     if not email:
@@ -1118,6 +1182,7 @@ def get_user_history():
     conn = get_db_connection()
     try:
         with conn.cursor() as cursor:
+            ensure_order_tables(cursor)
             ensure_service_activity_table(cursor)
             user = fetch_user_by_email(cursor, email)
             if not user:

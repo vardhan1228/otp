@@ -49,9 +49,9 @@ function stableImageLock(value) {
     return (hash * 31 + char.charCodeAt(0)) % 100000;
   }, 17) + 1;
 }
-const API_BASE = '/api';
+const API_BASE = 'http://localhost:5000/api';
 const USER_KEY = 'googleStoreUser';
-const PHONE_IMAGE_FALLBACK = '../assets/home/phones.svg';
+const PHONE_IMAGE_FALLBACK = '../images/phones.svg';
 
 const body = document.body;
 const category = body.getAttribute('data-category') || 'electronics';
