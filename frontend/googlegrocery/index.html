@@ -591,6 +591,55 @@ header {
     };
     const saveCart = () => localStorage.setItem('mooncart_cart', JSON.stringify(cart));
 
+    function getCurrentUser() {
+      try {
+        return JSON.parse(localStorage.getItem('googleStoreUser') || 'null');
+      } catch {
+        return null;
+      }
+    }
+
+    async function sendOrderReceipt(items, receiptObj) {
+      const user = getCurrentUser();
+      if (!user || !user.email) {
+        throw new Error("Please login on the home page before checkout.");
+      }
+      const orderItems = items.map((item) => ({
+        product_id: `grocery-${item.product.id}`,
+        product_name: item.product.name,
+        product_image: item.product.img,
+        product_description: item.product.cat,
+        price: Number(item.product.price || 0) * 83,
+        quantity: Number(item.qty || 1)
+      }));
+      const payload = {
+        email: user.email,
+        shipping_name: user.full_name || user.username || user.email,
+        shipping_address: user.address || "Address not provided",
+        shipping_phone: user.phone || "",
+        payment_method: "Grocery checkout",
+        payment_status: "paid",
+        transaction_reference: `GROCERY-${Date.now()}`,
+        payment_notes: "Google Grocery service order",
+        items: orderItems
+      };
+
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.error || "Order receipt email failed.");
+      }
+      if (data.order) {
+        receiptObj.orderId = data.order_id;
+        receiptObj.emailMessage = data.email_message;
+      }
+      return data;
+    }
+
     function formatDate(d) {
       return d.toLocaleString
         ? d.toLocaleString(undefined, {hour12: false}).replace(",", "")
@@ -805,20 +854,27 @@ header {
     };
 
     // --- Modified checkoutBtn event to add receipt actions ---
-    els.checkoutBtn.onclick = () => {
+    els.checkoutBtn.onclick = async () => {
       if (!cart.length) return showToast("Cart is empty!");
-      // Calculate and store last receipt before clearing cart
-      lastReceipt = buildReceiptObj(cart);
-      els.receiptActions.style.display = "flex";
-      els.modal.classList.add('open');
-      gsap.fromTo(".modal-content",
-        { scale: 0.6, opacity: 0 },
-        { scale: 1, opacity: 1, duration: 0.5, ease: "elastic.out(1,0.6)" }
-      );
-      confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
-      cart = [];
-      saveCart();
-      updateCartUI();
+      const checkoutItems = [...cart];
+      const receiptObj = buildReceiptObj(checkoutItems);
+      try {
+        const response = await sendOrderReceipt(checkoutItems, receiptObj);
+        lastReceipt = receiptObj;
+        els.receiptActions.style.display = "flex";
+        els.modal.classList.add('open');
+        gsap.fromTo(".modal-content",
+          { scale: 0.6, opacity: 0 },
+          { scale: 1, opacity: 1, duration: 0.5, ease: "elastic.out(1,0.6)" }
+        );
+        confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+        cart = [];
+        saveCart();
+        updateCartUI();
+        showToast(response.email_message || "Order placed. Receipt email is being sent.");
+      } catch (error) {
+        showToast(error.message || "Order failed. Please try again.");
+      }
     };
 
     els.closeModal.onclick = () => {

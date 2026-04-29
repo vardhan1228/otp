@@ -2,6 +2,7 @@ import os
 import random
 import re
 import threading
+from html import escape
 from datetime import datetime, timedelta
 
 import pymysql
@@ -181,55 +182,126 @@ def serialize_order_item(item):
     }
 
 
+def normalize_order_item(item):
+    price = float(item.get("price") or 0)
+    quantity = max(int(item.get("quantity") or 1), 1)
+    return {
+        "product_id": str(item.get("product_id") or item.get("id") or "").strip() or "product",
+        "product_name": str(item.get("product_name") or item.get("name") or "Product").strip(),
+        "product_image": str(item.get("product_image") or item.get("image") or "").strip() or None,
+        "price": price,
+        "quantity": quantity,
+        "subtotal": float(item.get("subtotal") or price * quantity),
+    }
+
+
 def build_order_receipt(order_payload):
+    items = order_payload.get("items") or []
+    total_quantity = sum(int(item.get("quantity") or 0) for item in items)
+    payment_method = order_payload.get("payment_method") or "Not provided"
+    payment_status = order_payload.get("payment_status") or "Not provided"
+    transaction_reference = order_payload.get("transaction_reference") or "Not provided"
+    payment_notes = order_payload.get("payment_notes") or "Not provided"
+    shipping_phone = order_payload.get("shipping_phone") or "Not provided"
+    shipping_address = order_payload.get("shipping_address") or "Not provided"
+
     item_lines = "\n".join(
         [
-            f"- {item['product_name']} x {item['quantity']} = Rs. {item['subtotal']:.2f}"
-            for item in order_payload["items"]
+            (
+                f"{index}. Product ID: {item.get('product_id') or 'Not provided'}\n"
+                f"   Name: {item.get('product_name') or 'Product'}\n"
+                f"   Image: {item.get('product_image') or 'Not provided'}\n"
+                f"   Quantity: {int(item.get('quantity') or 0)}\n"
+                f"   Unit Price: Rs. {float(item.get('price') or 0):.2f}\n"
+                f"   Subtotal: Rs. {float(item.get('subtotal') or 0):.2f}"
+            )
+            for index, item in enumerate(items, start=1)
         ]
-    )
+    ) or "No item details found."
+
     text_body = (
         f"Hello {order_payload['shipping_name']},\n\n"
         f"Your Google Store order #{order_payload['id']} has been placed successfully.\n\n"
-        f"Order Date: {order_payload['created_at']}\n"
+        "Customer Details\n"
+        "----------------\n"
+        f"Name: {order_payload['shipping_name']}\n"
         f"Email: {order_payload['shipping_email']}\n"
-        f"Phone: {order_payload['shipping_phone'] or 'Not provided'}\n"
-        f"Shipping Address:\n{order_payload['shipping_address']}\n\n"
-        f"Items:\n{item_lines}\n\n"
-        f"Total Paid: Rs. {order_payload['total_amount']:.2f}\n"
-        f"Payment Method: {order_payload['payment_method'] or 'Not provided'}\n"
+        f"Phone: {shipping_phone}\n\n"
+        "Shipping Details\n"
+        "----------------\n"
+        f"Address:\n{shipping_address}\n\n"
+        "Order Details\n"
+        "-------------\n"
+        f"Order ID: {order_payload['id']}\n"
+        f"Order Date: {order_payload['created_at']}\n"
         f"Order Status: {order_payload['status']}\n\n"
+        "Payment Details\n"
+        "---------------\n"
+        f"Payment Method: {payment_method}\n"
+        f"Payment Status: {payment_status}\n"
+        f"Transaction Reference: {transaction_reference}\n"
+        f"Payment Notes: {payment_notes}\n\n"
+        "Products Purchased\n"
+        "------------------\n"
+        f"{item_lines}\n\n"
+        "Amount Summary\n"
+        "--------------\n"
+        f"Total Quantity: {total_quantity}\n"
+        f"Total Paid: Rs. {float(order_payload['total_amount']):.2f}\n\n"
         "Thank you for shopping with Google Store."
     )
+
     html_lines = "".join(
         [
             (
                 "<tr>"
-                f"<td style='padding:8px;border-bottom:1px solid #e5e7eb;'>{item['product_name']}</td>"
-                f"<td style='padding:8px;border-bottom:1px solid #e5e7eb;text-align:center;'>{item['quantity']}</td>"
-                f"<td style='padding:8px;border-bottom:1px solid #e5e7eb;text-align:right;'>Rs. {item['price']:.2f}</td>"
-                f"<td style='padding:8px;border-bottom:1px solid #e5e7eb;text-align:right;'>Rs. {item['subtotal']:.2f}</td>"
+                f"<td style='padding:8px;border-bottom:1px solid #e5e7eb;'>{escape(str(item.get('product_id') or ''))}</td>"
+                f"<td style='padding:8px;border-bottom:1px solid #e5e7eb;'>"
+                f"<strong>{escape(str(item.get('product_name') or 'Product'))}</strong><br>"
+                f"<span style='color:#64748b;font-size:12px;word-break:break-all;'>{escape(str(item.get('product_image') or 'No image saved'))}</span>"
+                "</td>"
+                f"<td style='padding:8px;border-bottom:1px solid #e5e7eb;text-align:center;'>{int(item.get('quantity') or 0)}</td>"
+                f"<td style='padding:8px;border-bottom:1px solid #e5e7eb;text-align:right;'>Rs. {float(item.get('price') or 0):.2f}</td>"
+                f"<td style='padding:8px;border-bottom:1px solid #e5e7eb;text-align:right;'>Rs. {float(item.get('subtotal') or 0):.2f}</td>"
                 "</tr>"
             )
-            for item in order_payload["items"]
+            for item in items
         ]
-    )
+    ) or "<tr><td colspan='5' style='padding:8px;border-bottom:1px solid #e5e7eb;'>No item details found.</td></tr>"
+
+    escaped_address = escape(str(shipping_address)).replace("\n", "<br>")
     html_body = f"""
-    <div style="font-family:Arial,sans-serif;max-width:720px;margin:0 auto;padding:24px;color:#202124;">
+    <div style="font-family:Arial,sans-serif;max-width:760px;margin:0 auto;padding:24px;color:#202124;">
       <h2 style="margin-top:0;color:#1a73e8;">multicloud devops veera sir store Receipt</h2>
       <p>Your order <strong>#{order_payload['id']}</strong> has been placed successfully.</p>
-      <p>
-        <strong>Order Date:</strong> {order_payload['created_at']}<br>
-        <strong>Email:</strong> {order_payload['shipping_email']}<br>
-        <strong>Phone:</strong> {order_payload['shipping_phone'] or 'Not provided'}
-      </p>
-      <p>
-        <strong>Shipping Address</strong><br>
-        {order_payload['shipping_address'].replace(chr(10), '<br>')}
-      </p>
+
+      <div style="border:1px solid #e5e7eb;border-radius:10px;padding:14px;margin:16px 0;background:#f8fafc;">
+        <h3 style="margin:0 0 8px;color:#0f172a;">Customer Details</h3>
+        <strong>Name:</strong> {escape(str(order_payload['shipping_name']))}<br>
+        <strong>Email:</strong> {escape(str(order_payload['shipping_email']))}<br>
+        <strong>Phone:</strong> {escape(str(shipping_phone))}
+      </div>
+
+      <div style="border:1px solid #e5e7eb;border-radius:10px;padding:14px;margin:16px 0;">
+        <h3 style="margin:0 0 8px;color:#0f172a;">Shipping Details</h3>
+        <strong>Address:</strong><br>{escaped_address}
+      </div>
+
+      <div style="border:1px solid #e5e7eb;border-radius:10px;padding:14px;margin:16px 0;background:#f8fafc;">
+        <h3 style="margin:0 0 8px;color:#0f172a;">Order & Payment Details</h3>
+        <strong>Order ID:</strong> #{escape(str(order_payload['id']))}<br>
+        <strong>Order Date:</strong> {escape(str(order_payload['created_at']))}<br>
+        <strong>Order Status:</strong> {escape(str(order_payload['status']))}<br>
+        <strong>Payment Method:</strong> {escape(str(payment_method))}<br>
+        <strong>Payment Status:</strong> {escape(str(payment_status))}<br>
+        <strong>Transaction Reference:</strong> {escape(str(transaction_reference))}<br>
+        <strong>Payment Notes:</strong> {escape(str(payment_notes))}
+      </div>
+
       <table style="width:100%;border-collapse:collapse;margin:20px 0;">
         <thead>
           <tr style="background:#f8f9fa;">
+            <th style="padding:8px;text-align:left;border-bottom:1px solid #e5e7eb;">Product ID</th>
             <th style="padding:8px;text-align:left;border-bottom:1px solid #e5e7eb;">Product</th>
             <th style="padding:8px;text-align:center;border-bottom:1px solid #e5e7eb;">Qty</th>
             <th style="padding:8px;text-align:right;border-bottom:1px solid #e5e7eb;">Price</th>
@@ -238,11 +310,11 @@ def build_order_receipt(order_payload):
         </thead>
         <tbody>{html_lines}</tbody>
       </table>
-      <p>
-        <strong>Total Paid:</strong> Rs. {order_payload['total_amount']:.2f}<br>
-        <strong>Payment Method:</strong> {order_payload['payment_method'] or 'Not provided'}<br>
-        <strong>Order Status:</strong> {order_payload['status']}
-      </p>
+
+      <div style="text-align:right;border-top:2px solid #e5e7eb;padding-top:12px;">
+        <strong>Total Quantity:</strong> {total_quantity}<br>
+        <strong>Total Paid:</strong> Rs. {float(order_payload['total_amount']):.2f}
+      </div>
       <p style="margin-top:24px;">Thank you for shopping with Google Store.</p>
     </div>
     """
@@ -250,6 +322,11 @@ def build_order_receipt(order_payload):
 
 
 def send_order_receipt_email(order_payload):
+    if not app.config["MAIL_USERNAME"]:
+        raise RuntimeError("MAIL_USERNAME is not configured")
+    if not app.config["MAIL_PASSWORD"]:
+        raise RuntimeError("MAIL_PASSWORD is not configured")
+
     msg = Message(
         f"multicloud devops veera sir store - Order #{order_payload['id']}",
         sender=app.config["MAIL_USERNAME"],
@@ -268,6 +345,70 @@ def send_order_receipt_email_async(order_payload):
                 send_order_receipt_email(order_payload)
         except Exception as exc:
             app.logger.exception("Order receipt email failed: %s", exc)
+
+    threading.Thread(target=worker, daemon=True).start()
+
+
+def build_recharge_receipt(recharge_payload):
+    text_body = (
+        f"Hello {recharge_payload['email']},\n\n"
+        f"Your Google Pay recharge #{recharge_payload['id']} has been saved successfully.\n\n"
+        "Recharge Details\n"
+        "----------------\n"
+        f"Mobile Number: {recharge_payload['mobile_number']}\n"
+        f"Operator: {recharge_payload['operator_name']}\n"
+        f"Plan: {recharge_payload['plan_name'] or 'Custom plan'}\n"
+        f"Amount Paid: Rs. {float(recharge_payload['amount']):.2f}\n"
+        f"Payment Method: {recharge_payload['payment_method']}\n"
+        f"Status: {recharge_payload['status']}\n"
+        f"Transaction Reference: {recharge_payload['transaction_reference'] or 'Not provided'}\n"
+        f"Date: {recharge_payload['created_at']}\n\n"
+        "Thank you for using Google Pay."
+    )
+    html_body = f"""
+    <div style="font-family:Arial,sans-serif;max-width:680px;margin:0 auto;padding:24px;color:#202124;">
+      <h2 style="margin-top:0;color:#1a73e8;">Google Pay Recharge Receipt</h2>
+      <p>Your recharge <strong>#{recharge_payload['id']}</strong> has been saved successfully.</p>
+      <table style="width:100%;border-collapse:collapse;margin:20px 0;">
+        <tbody>
+          <tr><td style="padding:8px;border-bottom:1px solid #e5e7eb;"><strong>Email</strong></td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">{escape(str(recharge_payload['email']))}</td></tr>
+          <tr><td style="padding:8px;border-bottom:1px solid #e5e7eb;"><strong>Mobile Number</strong></td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">{escape(str(recharge_payload['mobile_number']))}</td></tr>
+          <tr><td style="padding:8px;border-bottom:1px solid #e5e7eb;"><strong>Operator</strong></td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">{escape(str(recharge_payload['operator_name']))}</td></tr>
+          <tr><td style="padding:8px;border-bottom:1px solid #e5e7eb;"><strong>Plan</strong></td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">{escape(str(recharge_payload['plan_name'] or 'Custom plan'))}</td></tr>
+          <tr><td style="padding:8px;border-bottom:1px solid #e5e7eb;"><strong>Amount Paid</strong></td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">Rs. {float(recharge_payload['amount']):.2f}</td></tr>
+          <tr><td style="padding:8px;border-bottom:1px solid #e5e7eb;"><strong>Payment Method</strong></td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">{escape(str(recharge_payload['payment_method']))}</td></tr>
+          <tr><td style="padding:8px;border-bottom:1px solid #e5e7eb;"><strong>Status</strong></td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">{escape(str(recharge_payload['status']))}</td></tr>
+          <tr><td style="padding:8px;border-bottom:1px solid #e5e7eb;"><strong>Transaction Reference</strong></td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">{escape(str(recharge_payload['transaction_reference'] or 'Not provided'))}</td></tr>
+          <tr><td style="padding:8px;border-bottom:1px solid #e5e7eb;"><strong>Date</strong></td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">{escape(str(recharge_payload['created_at']))}</td></tr>
+        </tbody>
+      </table>
+      <p>Thank you for using Google Pay.</p>
+    </div>
+    """
+    return text_body, html_body
+
+
+def send_recharge_receipt_email(recharge_payload):
+    if not app.config["MAIL_USERNAME"] or not app.config["MAIL_PASSWORD"]:
+        raise RuntimeError("MAIL_USERNAME and MAIL_PASSWORD are required to send receipt emails.")
+    msg = Message(
+        f"Google Pay Recharge Receipt #{recharge_payload['id']}",
+        sender=app.config["MAIL_USERNAME"],
+        recipients=[recharge_payload["email"]],
+    )
+    text_body, html_body = build_recharge_receipt(recharge_payload)
+    msg.body = text_body
+    msg.html = html_body
+    mail.send(msg)
+
+
+def send_recharge_receipt_email_async(recharge_payload):
+    def worker():
+        try:
+            with app.app_context():
+                send_recharge_receipt_email(recharge_payload)
+        except Exception as exc:
+            app.logger.exception("Recharge receipt email failed: %s", exc)
 
     threading.Thread(target=worker, daemon=True).start()
 
@@ -790,7 +931,17 @@ def create_order():
                 return jsonify({"error": "User not found"}), 404
 
             cart = fetch_cart(cursor, user["id"])
-            if not cart["items"]:
+            request_items = [
+                normalize_order_item(item)
+                for item in (data.get("items") or [])
+                if isinstance(item, dict)
+            ]
+            order_items = cart["items"] or request_items
+            order_total = round(
+                sum(float(item.get("subtotal") or (float(item.get("price") or 0) * int(item.get("quantity") or 1))) for item in order_items),
+                2,
+            )
+            if not order_items:
                 return jsonify({"error": "Cart is empty"}), 400
 
             cursor.execute(
@@ -798,11 +949,11 @@ def create_order():
                 INSERT INTO orders (user_id, shipping_name, shipping_email, shipping_address, shipping_phone, total_amount, status)
                 VALUES (%s, %s, %s, %s, %s, %s, %s)
                 """,
-                (user["id"], shipping_name, email, shipping_address, shipping_phone, cart["total"], status),
+                (user["id"], shipping_name, email, shipping_address, shipping_phone, order_total, status),
             )
             order_id = cursor.lastrowid
 
-            for item in cart["items"]:
+            for item in order_items:
                 cursor.execute(
                     """
                     INSERT INTO order_items (order_id, product_id, product_name, product_image, price, quantity)
@@ -840,7 +991,7 @@ def create_order():
                         order_id,
                         "order",
                         payment_method,
-                        cart["total"],
+                        order_total,
                         payment_status,
                         transaction_reference,
                         payment_notes,
@@ -854,26 +1005,32 @@ def create_order():
                 "shipping_email": email,
                 "shipping_address": shipping_address,
                 "shipping_phone": shipping_phone,
-                "total_amount": cart["total"],
+                "total_amount": order_total,
                 "status": status,
                 "payment_method": payment_method,
                 "payment_status": payment_status,
                 "transaction_reference": transaction_reference,
+                "payment_notes": payment_notes,
                 "created_at": receipt_created_at,
-                "items": [serialize_order_item(item) for item in cart["items"]],
+                "items": [serialize_order_item(item) for item in order_items],
             }
             conn.commit()
 
-            send_order_receipt_email_async(order_payload)
+            email_queued = bool(app.config["MAIL_USERNAME"] and app.config["MAIL_PASSWORD"])
+            email_message = "Receipt email is being sent in the background."
+            if email_queued:
+                send_order_receipt_email_async(order_payload)
+            else:
+                email_message = "Receipt email was not sent because MAIL_USERNAME or MAIL_PASSWORD is missing."
 
             return (
                 jsonify(
                     {
                         "message": "Order placed successfully",
                         "order_id": order_id,
-                        "total_amount": cart["total"],
-                        "email_queued": True,
-                        "email_message": "Receipt email is being sent in the background.",
+                        "total_amount": order_total,
+                        "email_queued": email_queued,
+                        "email_message": email_message,
                         "order": order_payload,
                     }
                 ),
@@ -1073,7 +1230,38 @@ def create_recharge():
                 ),
             )
             conn.commit()
-            return jsonify({"message": "Recharge saved successfully", "recharge_id": recharge_id}), 201
+
+            recharge_payload = {
+                "id": recharge_id,
+                "email": email,
+                "mobile_number": mobile_number,
+                "operator_name": operator_name,
+                "plan_name": plan_name,
+                "amount": amount,
+                "payment_method": payment_method,
+                "status": status,
+                "transaction_reference": transaction_reference,
+                "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            }
+            email_queued = bool(app.config["MAIL_USERNAME"] and app.config["MAIL_PASSWORD"])
+            email_message = "Recharge receipt email is being sent in the background."
+            if email_queued:
+                send_recharge_receipt_email_async(recharge_payload)
+            else:
+                email_message = "Recharge receipt email was not sent because MAIL_USERNAME or MAIL_PASSWORD is missing."
+
+            return (
+                jsonify(
+                    {
+                        "message": "Recharge saved successfully",
+                        "recharge_id": recharge_id,
+                        "email_queued": email_queued,
+                        "email_message": email_message,
+                        "recharge": recharge_payload,
+                    }
+                ),
+                201,
+            )
     finally:
         conn.close()
 

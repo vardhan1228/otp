@@ -600,7 +600,7 @@ async function handlePaymentDone(method) {
         subtotal: Number(item.subtotal || (Number(item.price || 0) * Number(item.quantity || 0)))
       }))
     };
-    await window.GoogleStoreCart.apiRequest('/orders', {
+    const orderResponse = await window.GoogleStoreCart.apiRequest('/orders', {
       method: 'POST',
       body: JSON.stringify({
         ...shippingFields,
@@ -609,12 +609,15 @@ async function handlePaymentDone(method) {
         status: 'placed'
       })
     });
+    if (orderResponse.order) {
+      placedOrder = orderResponse.order;
+    }
     document.getElementById('receiptModal').style.display = 'block';
     Object.values(paymentTabs).forEach(section => {
       section.style.display = 'none';
     });
     await window.GoogleStoreCart.refreshCart();
-    setOrderError('Order queued. Use View Details / Receipt or Download Receipt below.');
+    setOrderError(orderResponse.email_message || 'Order placed. Receipt email is being sent.');
   } catch (error) {
     setOrderError(error.message || 'Unable to place order.');
   }

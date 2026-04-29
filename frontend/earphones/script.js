@@ -191,6 +191,23 @@ function currentServiceEmail() {
   return "";
 }
 
+function clearSyncedServiceQueue(email = "") {
+  let queue = [];
+  try {
+    queue = JSON.parse(localStorage.getItem(SERVICE_API_QUEUE_KEY) || "[]");
+  } catch {
+    return;
+  }
+  const serviceName = getServiceName();
+  const normalizedEmail = String(email || "").trim().toLowerCase();
+  const filteredQueue = queue.filter((request) => {
+    if (request.source !== serviceName) return true;
+    const requestEmail = String(request.body?.email || "").trim().toLowerCase();
+    return normalizedEmail && requestEmail && requestEmail !== normalizedEmail;
+  });
+  localStorage.setItem(SERVICE_API_QUEUE_KEY, JSON.stringify(filteredQueue));
+}
+
 function readEmailFromCartPath(path) {
   try {
     const query = String(path).split("?")[1] || "";
@@ -230,13 +247,40 @@ async function apiRequest(path, options = {}) {
     writeServiceCart(email, items);
   }
 
-  queueMainIndexRequest(path, { ...options, method, body });
+  const syncBody = String(path).startsWith("/orders") && !Array.isArray(body.items)
+    ? { ...body, items: readServiceCart(email) }
+    : body;
+  let backendResult = null;
+  try {
+    const response = await fetch(`/api${path}`, {
+      headers: { "Content-Type": "application/json", ...(options.headers || {}) },
+      ...options,
+      method,
+      body: JSON.stringify(syncBody)
+    });
+    const responseData = await response.json().catch(() => ({}));
+    if (response.ok) {
+      backendResult = responseData;
+    } else {
+      console.warn("Backend sync failed", responseData.error || response.statusText);
+    }
+  } catch (error) {
+    console.warn("Backend sync unavailable", error);
+  }
+
+  if (backendResult && String(path).startsWith("/orders")) {
+    clearSyncedServiceQueue(email);
+  }
+
+  if (!backendResult) {
+    queueMainIndexRequest(path, { ...options, method, body: syncBody });
+  }
 
   if (String(path).startsWith("/orders")) {
     writeServiceCart(email, []);
   }
 
-  return { message: "Queued for main index backend sync" };
+  return backendResult || { message: "Queued for main index backend sync" };
 }
 
 function getById(id) {

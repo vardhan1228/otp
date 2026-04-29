@@ -1180,6 +1180,28 @@
             localStorage.setItem(SERVICE_API_QUEUE_KEY, JSON.stringify(queue));
         }
 
+        async function sendBackendRequest(path, body, method = 'POST') {
+            try {
+                const response = await fetch(`/api${path}`, {
+                    method,
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(body)
+                });
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    throw new Error(data.error || response.statusText || 'Backend request failed');
+                }
+                return data;
+            } catch (error) {
+                queueMainIndexRequest(path, body, method);
+                return {
+                    queued: true,
+                    email_queued: false,
+                    email_message: "Backend unavailable. Receipt email will send after the main page syncs this recharge."
+                };
+            }
+        }
+
         // Sample Plans Data
         const plans = {
             airtel: {
@@ -1512,7 +1534,7 @@
                     : `Custom Amount ${selectedAmount}`;
                 const transactionReference = `GPAY-${Date.now()}`;
 
-                queueMainIndexRequest('/recharges', {
+                const rechargeResponse = await sendBackendRequest('/recharges', {
                     email: currentUser.email,
                     mobile_number: mobile,
                     operator_name: selectedOperator,
@@ -1531,7 +1553,7 @@
                 document.querySelector('.recharge-card > form').style.display = 'none';
                 successMessage.style.display = 'block';
 
-                showToast('Recharge saved. Main page will sync it to backend.', 'success');
+                showToast(rechargeResponse.email_message || 'Recharge saved. Receipt email is being sent.', 'success');
 
                 // After success, strictly DON'T reload or go to home, even on touch or click
                 // Listen to touches/clicks on the success message, but block navigation or reload
