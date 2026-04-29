@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -2513,8 +2513,9 @@
   </div>
 
   <script>
-    const API_BASE = "http://localhost:5000/api";
+    const API_BASE = "/api";
     const USER_KEY = "googleStoreUser";
+    const SERVICE_API_QUEUE_KEY = "googleStoreApiQueue";
     const LOGIN_EXPIRE_MINUTES = 60;
 
     let signupStep = 1;
@@ -2567,6 +2568,7 @@
       isLoggedIn = true;
       saveUserSession({ username, email });
       loadUserHistory(email);
+      processQueuedServiceRequests();
     }
 
     function onUserLoggedOut() {
@@ -2740,6 +2742,63 @@
       } catch (error) {
         if (activityIntro) activityIntro.textContent = error.message || "Unable to load activity right now.";
         resetActivityLists();
+      }
+    }
+
+    async function mainApiRequest(path, options = {}) {
+      const response = await fetch(`${API_BASE}${path}`, {
+        headers: { "Content-Type": "application/json", ...(options.headers || {}) },
+        ...options
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || "Request failed");
+      return data;
+    }
+
+    function readQueuedServiceRequests() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(SERVICE_API_QUEUE_KEY) || "[]");
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function writeQueuedServiceRequests(requests) {
+      localStorage.setItem(SERVICE_API_QUEUE_KEY, JSON.stringify(requests));
+    }
+
+    async function processQueuedServiceRequests() {
+      const user = loadUserSession();
+      const requests = readQueuedServiceRequests();
+      if (!user?.email || !requests.length) return;
+
+      const remaining = [];
+      let syncedCount = 0;
+
+      for (const request of requests) {
+        const body = typeof request.body === "string" ? JSON.parse(request.body || "{}") : (request.body || {});
+        if (body.email && body.email !== user.email) {
+          remaining.push(request);
+          continue;
+        }
+
+        try {
+          await mainApiRequest(request.path, {
+            method: request.method || "POST",
+            body: JSON.stringify({ ...body, email: body.email || user.email })
+          });
+          syncedCount += 1;
+        } catch (error) {
+          remaining.push(request);
+          console.error("Queued service sync failed", error);
+        }
+      }
+
+      writeQueuedServiceRequests(remaining);
+      if (syncedCount) {
+        showMessage(`${syncedCount} service action(s) synced through the main page.`, "success");
+        loadUserHistory(user.email);
       }
     }
 

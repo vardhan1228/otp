@@ -456,29 +456,18 @@ function copyUPIID() {
 // AUTO GENERATE + UPLOAD RECEIPT
 // =========================
 
-// Upload receipt to backend API
-// NOTE: 'mobile' is NOT sent anymore due to backend MySQL schema error.
 async function uploadReceiptToS3(receiptText, customerMobile) {
   try {
     const now = Date.now();
     const receiptFileName = `GoogleStoreReceipt_${customerMobile}_${now}.txt`;
-    const res = await fetch("http://18.181.35.96:5001/save-receipts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      // Remove 'mobile' field from payload due to backend column error
-      body: JSON.stringify({
-        filename: receiptFileName,
-        receipt_text: receiptText
-      })
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || "Upload failed");
-    console.log("Receipt Saved:", data);
-    alert("A copy of your receipt has been saved.");
+    const receipts = JSON.parse(localStorage.getItem("googleStoreReceiptQueue") || "[]");
+    const data = { filename: receiptFileName, receipt_text: receiptText, source: "computers" };
+    receipts.push(data);
+    localStorage.setItem("googleStoreReceiptQueue", JSON.stringify(receipts));
+    console.log("Receipt queued for main page ownership:", data);
     return data;
   } catch (err) {
-    console.error("Upload Error:", err);
-    alert("Error uploading receipt: " + err.message);
+    console.error("Receipt queue error:", err);
   }
 }
 
