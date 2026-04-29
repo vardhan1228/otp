@@ -216,7 +216,7 @@ def build_order_receipt(order_payload):
     )
     html_body = f"""
     <div style="font-family:Arial,sans-serif;max-width:720px;margin:0 auto;padding:24px;color:#202124;">
-      <h2 style="margin-top:0;color:#1a73e8;">Google Store Receipt</h2>
+      <h2 style="margin-top:0;color:#1a73e8;">multicloud devops veera sir store Receipt</h2>
       <p>Your order <strong>#{order_payload['id']}</strong> has been placed successfully.</p>
       <p>
         <strong>Order Date:</strong> {order_payload['created_at']}<br>
@@ -251,7 +251,7 @@ def build_order_receipt(order_payload):
 
 def send_order_receipt_email(order_payload):
     msg = Message(
-        f"Google Store Receipt - Order #{order_payload['id']}",
+        f"multicloud devops veera sir store - Order #{order_payload['id']}",
         sender=app.config["MAIL_USERNAME"],
         recipients=[order_payload["shipping_email"]],
     )
