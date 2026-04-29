@@ -90,7 +90,7 @@ applyNameMatchedImages();
 const SERVICE_API_QUEUE_KEY = "googleStoreApiQueue";
 const SERVICE_CART_CACHE_KEY = "googleStoreServiceCart";
 const USER_KEY = 'googleStoreUser';
-const FASHION_IMAGE_FALLBACK = '../images/fashion.svg';
+const FASHION_IMAGE_FALLBACK = 'https://tse1.mm.bing.net/th?q=fashion%20clothes%20shopping%20product&w=600&h=400&c=7&rs=1&p=0&o=5&pid=1.7';
 
 const body = document.body;
 const category = body.getAttribute('data-category') || 'fashion';

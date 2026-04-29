@@ -1990,7 +1990,371 @@
       }
     }
 
+    /* Mobile-first finishing overrides */
+    @media (max-width: 640px) {
+      :root {
+        --radius-xl: 20px;
+        --radius-lg: 18px;
+        --radius-md: 14px;
+      }
+
+      body {
+        background: linear-gradient(180deg, #f7fbff 0%, #eef6ff 48%, #fff8fb 100%);
+      }
+
+      .container,
+      .activity-shell,
+      .orders-panel,
+      .student-focus-section,
+      .footer {
+        width: calc(100% - 24px);
+      }
+
+      .marketplace-header {
+        position: sticky;
+        top: 0;
+      }
+
+      .marketplace-topbar {
+        min-height: auto;
+        padding: 10px 0;
+        gap: 10px;
+      }
+
+      .marketplace-search {
+        height: 46px;
+        padding: 0 12px;
+        border-width: 1px;
+        border-radius: 10px;
+      }
+
+      .marketplace-search .material-symbols-outlined {
+        font-size: 24px;
+      }
+
+      .marketplace-search input {
+        font-size: 15px;
+        min-width: 0;
+      }
+
+      .marketplace-actions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+        white-space: normal;
+      }
+
+      .marketplace-action,
+      .marketplace-action-button {
+        min-height: 42px;
+        justify-content: center;
+        padding: 0 8px;
+        border-radius: 10px;
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        font-size: 12px;
+        gap: 4px;
+      }
+
+      .marketplace-action .material-symbols-outlined,
+      .marketplace-action-button .material-symbols-outlined {
+        font-size: 20px;
+      }
+
+      .marketplace-action-button .expand-icon {
+        display: none;
+      }
+
+      .marketplace-profile {
+        grid-column: 1 / -1;
+        display: none;
+        justify-content: space-between;
+        padding: 8px 10px;
+        border-radius: 10px;
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+      }
+
+      .marketplace-profile.show {
+        display: flex;
+      }
+
+      .marketplace-category-wrap {
+        overflow: hidden;
+      }
+
+      .marketplace-categories {
+        min-height: 76px;
+        gap: 12px;
+        padding: 0 12px;
+        scroll-snap-type: x proximity;
+      }
+
+      .marketplace-categories .nav-pill {
+        min-width: 64px;
+        padding: 9px 0 11px;
+        font-size: 12px;
+        scroll-snap-align: start;
+      }
+
+      .category-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+      }
+
+      .category-icon .material-symbols-outlined {
+        font-size: 26px;
+      }
+
+      .hero-section {
+        padding-top: 16px;
+      }
+
+      .hero-grid {
+        gap: 14px;
+      }
+
+      .hero-copy,
+      .hero-visual,
+      .featured-products-section,
+      .student-focus-section,
+      .orders-panel,
+      .activity-card,
+      .story-strip {
+        padding: 16px;
+        border-radius: 18px;
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+      }
+
+      .eyebrow {
+        margin-bottom: 12px;
+        padding: 8px 10px;
+        font-size: 12px;
+      }
+
+      .hero-section h1 {
+        max-width: 100%;
+        font-size: 38px;
+        line-height: 1.02;
+      }
+
+      .hero-lead {
+        font-size: 15px;
+        line-height: 1.55;
+      }
+
+      .hero-support {
+        font-size: 14px;
+        margin-bottom: 18px;
+      }
+
+      .hero-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .cta-button,
+      .secondary-button,
+      .card-link,
+      .auth-submit,
+      #profile button {
+        width: 100%;
+        min-height: 46px;
+        padding: 0 14px;
+        border-radius: 12px;
+        font-size: 14px;
+      }
+
+      .hero-stats {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .stat-tile,
+      .summary-chip,
+      .quick-card,
+      .story-card,
+      .student-focus-point {
+        padding: 14px;
+        border-radius: 14px;
+      }
+
+      .hero-showcase {
+        gap: 10px;
+      }
+
+      .showcase-main {
+        padding: 16px;
+        min-height: 300px;
+      }
+
+      .showcase-main img {
+        width: min(100%, 240px);
+      }
+
+      .showcase-main strong {
+        font-size: 20px;
+      }
+
+      .mini-card {
+        min-height: 72px;
+        padding: 12px;
+        border-radius: 14px;
+      }
+
+      .section-heading {
+        margin-bottom: 16px;
+      }
+
+      .section-heading h2,
+      .activity-header h2 {
+        font-size: 26px;
+        line-height: 1.1;
+      }
+
+      .section-heading p,
+      .activity-header p {
+        font-size: 14px;
+        line-height: 1.55;
+      }
+
+      .featured-products {
+        gap: 12px;
+      }
+
+      .product-card {
+        min-height: auto;
+        padding: 16px;
+        border-radius: 16px;
+        gap: 10px;
+      }
+
+      .product-card:nth-child(1),
+      .product-card:nth-child(2),
+      .product-card:nth-child(3),
+      .showcase-main img {
+        animation: none;
+      }
+
+      .product-media {
+        min-height: 136px;
+        border-radius: 14px;
+      }
+
+      .product-media img {
+        max-height: 116px;
+      }
+
+      .product-card h3 {
+        font-size: 19px;
+      }
+
+      .product-meta,
+      .order-detail-top,
+      .order-item-row,
+      .orders-panel-header,
+      .footer {
+        display: grid;
+        grid-template-columns: 1fr;
+        align-items: stretch;
+      }
+
+      .product-price {
+        font-size: 15px;
+      }
+
+      .activity-section,
+      .student-focus-section {
+        margin-top: 16px;
+      }
+
+      .activity-grid,
+      .student-summary,
+      .story-grid,
+      .hero-quick-panel {
+        gap: 12px;
+      }
+
+      .activity-card h3,
+      .orders-panel-header h3 {
+        font-size: 20px;
+      }
+
+      .activity-item,
+      .activity-empty,
+      .order-detail-card {
+        padding: 12px;
+        border-radius: 14px;
+        overflow-wrap: anywhere;
+      }
+
+      .order-status-pill {
+        justify-self: start;
+      }
+
+      .auth-modal-overlay {
+        padding: 10px;
+        align-items: start;
+        overflow-y: auto;
+      }
+
+      .auth-shell {
+        width: 100%;
+        max-height: none;
+        border-radius: 18px;
+        overflow: visible;
+      }
+
+      .auth-panel {
+        display: none;
+      }
+
+      .card#authCard {
+        min-height: auto;
+        padding: 18px;
+        border-radius: 18px;
+      }
+
+      .auth-close-btn {
+        top: 10px;
+        right: 10px;
+      }
+
+      #signupForm input,
+      #loginForm input {
+        min-height: 46px;
+        font-size: 16px;
+      }
+
+      .student-focus-copy h2 {
+        font-size: 26px;
+      }
+    }
+
+    @media (max-width: 390px) {
+      .marketplace-actions {
+        grid-template-columns: 1fr;
+      }
+
+      .marketplace-action,
+      .marketplace-action-button {
+        justify-content: flex-start;
+      }
+
+      .hero-section h1 {
+        font-size: 32px;
+      }
+
+      .product-card {
+        padding: 14px;
+      }
+    }
+
   </style>
+  <link rel="stylesheet" href="/mobile.css">
 </head>
 <body>
   <div class="page-shell">
@@ -2117,7 +2481,7 @@
         <aside class="auth-panel">
           <div>
             <div class="auth-logo-google-store">
-              <img src="https://latestlogo.com/wp-content/uploads/2024/01/google-store-logo.png" alt="Google Store Logo" draggable="false" loading="lazy">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg" alt="Google Store Logo" draggable="false" loading="lazy">
             </div>
             <h2>One account for every service on this page.</h2>
             <p>Sign in once to unlock shopping, payments, recharges, and synced activity across the experience.</p>
@@ -2233,20 +2597,20 @@
             <div class="hero-showcase">
               <div class="showcase-card showcase-main">
                 <span class="showcase-kicker">Featured</span>
-                <img src="./images/mobiles.svg" alt="Mobiles service preview" loading="eager">
+                <img src="https://tse1.mm.bing.net/th?q=smartphone%20mobile%20phone%20product&w=520&h=380&c=7&rs=1&p=0&o=5&pid=1.7" alt="Mobiles service preview" loading="eager">
                 <strong>Smart shopping flow</strong>
                 <span>Catalog, cart, checkout, and receipt journey.</span>
               </div>
               <a class="showcase-card mini-card mini-blue" href="/appliances">
-                <img src="https://loremflickr.com/520/380/home,appliances?lock=4101" alt="Appliances service" loading="lazy">
+                <img src="https://tse1.mm.bing.net/th?q=home%20appliances%20products&w=520&h=380&c=7&rs=1&p=0&o=5&pid=1.7" alt="Appliances service" loading="lazy">
                 <span>Appliances</span>
               </a>
               <a class="showcase-card mini-card mini-green" href="/home">
-                <img src="https://loremflickr.com/520/380/home,decor?lock=4102" alt="Home service" loading="lazy">
+                <img src="https://tse1.mm.bing.net/th?q=home%20decor%20furniture%20products&w=520&h=380&c=7&rs=1&p=0&o=5&pid=1.7" alt="Home service" loading="lazy">
                 <span>Home</span>
               </a>
               <a class="showcase-card mini-card mini-yellow" href="/electronics">
-                <img src="./images/electronics.svg" alt="Electronics service" loading="lazy">
+                <img src="https://tse1.mm.bing.net/th?q=electronics%20gadgets%20smart%20devices&w=520&h=380&c=7&rs=1&p=0&o=5&pid=1.7" alt="Electronics service" loading="lazy">
                 <span>Electronics</span>
               </a>
             </div>
@@ -2296,7 +2660,7 @@
           <div class="featured-products">
             <article class="product-card" style="--card-accent:rgba(236,72,153,0.18);">
               <span class="product-badge">Fashion service</span>
-              <div class="product-media"><img src="./images/fashion.svg" alt="Fashion service" loading="lazy"></div>
+              <div class="product-media"><img src="https://tse1.mm.bing.net/th?q=fashion%20clothes%20shopping%20product&w=520&h=380&c=7&rs=1&p=0&o=5&pid=1.7" alt="Fashion service" loading="lazy"></div>
               <h3>Fashion</h3>
               <p>Dedicated fashion catalog with clothing, footwear, bags, cart, checkout, and order flow.</p>
               <div class="product-meta"><span class="product-price">Style</span><a href="/fashion" class="card-link" data-service-name="Fashion" data-service-path="/fashion">Open</a></div>
@@ -2304,7 +2668,7 @@
 
             <article class="product-card" style="--card-accent:rgba(66,133,244,0.22);">
               <span class="product-badge">Mobiles service</span>
-              <div class="product-media"><img src="./images/mobiles.svg" alt="Mobiles service" loading="lazy"></div>
+              <div class="product-media"><img src="https://tse1.mm.bing.net/th?q=smartphone%20mobile%20phone%20product&w=520&h=380&c=7&rs=1&p=0&o=5&pid=1.7" alt="Mobiles service" loading="lazy"></div>
               <h3>Mobiles</h3>
               <p>Browse phones, watches, chargers, cases, and accessories in a separate mobile service.</p>
               <div class="product-meta"><span class="product-price">Catalog</span><a href="/mobiles" class="card-link" data-service-name="Mobiles" data-service-path="/mobiles">Open</a></div>
@@ -2312,7 +2676,7 @@
 
             <article class="product-card" style="--card-accent:rgba(190,24,93,0.18);">
               <span class="product-badge">Beauty service</span>
-              <div class="product-media"><img src="https://loremflickr.com/520/380/beauty,skincare?lock=3131" alt="Beauty service" loading="lazy"></div>
+              <div class="product-media"><img src="https://tse1.mm.bing.net/th?q=beauty%20skincare%20products&w=520&h=380&c=7&rs=1&p=0&o=5&pid=1.7" alt="Beauty service" loading="lazy"></div>
               <h3>Beauty</h3>
               <p>Skincare, grooming, makeup, and personal care products with a complete shopping flow.</p>
               <div class="product-meta"><span class="product-price">Care</span><a href="/beauty" class="card-link" data-service-name="Beauty" data-service-path="/beauty">Open</a></div>
@@ -2320,7 +2684,7 @@
 
             <article class="product-card" style="--card-accent:rgba(26,115,232,0.16);">
               <span class="product-badge">Electronics service</span>
-              <div class="product-media"><img src="./images/electronics.svg" alt="Electronics service" loading="lazy"></div>
+              <div class="product-media"><img src="https://tse1.mm.bing.net/th?q=electronics%20gadgets%20smart%20devices&w=520&h=380&c=7&rs=1&p=0&o=5&pid=1.7" alt="Electronics service" loading="lazy"></div>
               <h3>Electronics</h3>
               <p>Smart devices, cameras, routers, speakers, and connected home products.</p>
               <div class="product-meta"><span class="product-price">Devices</span><a href="/electronics" class="card-link" data-service-name="Electronics" data-service-path="/electronics">Open</a></div>
@@ -2328,7 +2692,7 @@
 
             <article class="product-card" style="--card-accent:rgba(202,138,4,0.18);">
               <span class="product-badge">Home service</span>
-              <div class="product-media"><img src="https://loremflickr.com/520/380/home,decor?lock=3132" alt="Home service" loading="lazy"></div>
+              <div class="product-media"><img src="https://tse1.mm.bing.net/th?q=home%20decor%20furniture%20products&w=520&h=380&c=7&rs=1&p=0&o=5&pid=1.7" alt="Home service" loading="lazy"></div>
               <h3>Home</h3>
               <p>Home decor, kitchen tools, bedding, lighting, storage, and daily living essentials.</p>
               <div class="product-meta"><span class="product-price">Living</span><a href="/home" class="card-link" data-service-name="Home" data-service-path="/home">Open</a></div>
@@ -2336,7 +2700,7 @@
 
             <article class="product-card" style="--card-accent:rgba(124,58,237,0.18);">
               <span class="product-badge">Appliances service</span>
-              <div class="product-media"><img src="https://loremflickr.com/520/380/home,appliances?lock=3133" alt="Appliances service" loading="lazy"></div>
+              <div class="product-media"><img src="https://tse1.mm.bing.net/th?q=home%20appliances%20products&w=520&h=380&c=7&rs=1&p=0&o=5&pid=1.7" alt="Appliances service" loading="lazy"></div>
               <h3>Appliances</h3>
               <p>Kitchen, cleaning, cooling, and utility appliances in their own service directory.</p>
               <div class="product-meta"><span class="product-price">Utility</span><a href="/appliances" class="card-link" data-service-name="Appliances" data-service-path="/appliances">Open</a></div>
@@ -2344,7 +2708,7 @@
 
             <article class="product-card" style="--card-accent:rgba(220,38,38,0.18);">
               <span class="product-badge">Toys service</span>
-              <div class="product-media"><img src="https://loremflickr.com/520/380/toys,kids?lock=3134" alt="Toys service" loading="lazy"></div>
+              <div class="product-media"><img src="https://tse1.mm.bing.net/th?q=toys%20baby%20kids%20products&w=520&h=380&c=7&rs=1&p=0&o=5&pid=1.7" alt="Toys service" loading="lazy"></div>
               <h3>Toys, Baby &amp; Kids</h3>
               <p>Toys, baby care, learning kits, and kids products with cart and checkout.</p>
               <div class="product-meta"><span class="product-price">Kids</span><a href="/toys" class="card-link" data-service-name="Toys Baby Kids" data-service-path="/toys">Open</a></div>
@@ -2352,7 +2716,7 @@
 
             <article class="product-card" style="--card-accent:rgba(52,168,83,0.18);">
               <span class="product-badge">Food service</span>
-              <div class="product-media"><img src="./images/grocery.svg" alt="Food and health service" loading="lazy"></div>
+              <div class="product-media"><img src="https://tse1.mm.bing.net/th?q=grocery%20food%20healthy%20products&w=520&h=380&c=7&rs=1&p=0&o=5&pid=1.7" alt="Food and health service" loading="lazy"></div>
               <h3>Food &amp; Health</h3>
               <p>Groceries, snacks, beverages, nutrition, and health items in a separate service.</p>
               <div class="product-meta"><span class="product-price">Daily</span><a href="/food" class="card-link" data-service-name="Food Health" data-service-path="/food">Open</a></div>
@@ -2360,7 +2724,7 @@
 
             <article class="product-card" style="--card-accent:rgba(8,145,178,0.18);">
               <span class="product-badge">Auto service</span>
-              <div class="product-media"><img src="https://loremflickr.com/520/380/car,accessories?lock=3135" alt="Auto accessories service" loading="lazy"></div>
+              <div class="product-media"><img src="https://tse1.mm.bing.net/th?q=car%20auto%20accessories%20products&w=520&h=380&c=7&rs=1&p=0&o=5&pid=1.7" alt="Auto accessories service" loading="lazy"></div>
               <h3>Auto Accessories</h3>
               <p>Car care, chargers, mounts, cameras, organizers, and travel accessories.</p>
               <div class="product-meta"><span class="product-price">Auto</span><a href="/auto" class="card-link" data-service-name="Auto Accessories" data-service-path="/auto">Open</a></div>
@@ -2368,7 +2732,7 @@
 
             <article class="product-card" style="--card-accent:rgba(234,88,12,0.18);">
               <span class="product-badge">2 Wheelers service</span>
-              <div class="product-media"><img src="https://loremflickr.com/520/380/scooter,bike?lock=3136" alt="Two wheelers service" loading="lazy"></div>
+              <div class="product-media"><img src="https://tse1.mm.bing.net/th?q=scooter%20motorcycle%20two%20wheeler%20products&w=520&h=380&c=7&rs=1&p=0&o=5&pid=1.7" alt="Two wheelers service" loading="lazy"></div>
               <h3>2 Wheelers</h3>
               <p>Scooters, helmets, bike covers, riding gear, EV chargers, and commuter essentials.</p>
               <div class="product-meta"><span class="product-price">Ride</span><a href="/two-wheelers" class="card-link" data-service-name="2 Wheelers" data-service-path="/two-wheelers">Open</a></div>
@@ -2376,7 +2740,7 @@
 
             <article class="product-card" style="--card-accent:rgba(21,128,61,0.18);">
               <span class="product-badge">Sports service</span>
-              <div class="product-media"><img src="https://loremflickr.com/520/380/sports,fitness?lock=3137" alt="Sports service" loading="lazy"></div>
+              <div class="product-media"><img src="https://tse1.mm.bing.net/th?q=sports%20fitness%20equipment%20products&w=520&h=380&c=7&rs=1&p=0&o=5&pid=1.7" alt="Sports service" loading="lazy"></div>
               <h3>Sports &amp; Fitness</h3>
               <p>Cricket, gym, yoga, running, outdoor, and fitness products with the same cart flow.</p>
               <div class="product-meta"><span class="product-price">Fitness</span><a href="/sports" class="card-link" data-service-name="Sports Fitness" data-service-path="/sports">Open</a></div>
@@ -2384,7 +2748,7 @@
 
             <article class="product-card" style="--card-accent:rgba(147,51,234,0.18);">
               <span class="product-badge">Books service</span>
-              <div class="product-media"><img src="https://loremflickr.com/520/380/books,stationery?lock=3138" alt="Books service" loading="lazy"></div>
+              <div class="product-media"><img src="https://tse1.mm.bing.net/th?q=books%20stationery%20products&w=520&h=380&c=7&rs=1&p=0&o=5&pid=1.7" alt="Books service" loading="lazy"></div>
               <h3>Books &amp; Stationery</h3>
               <p>Books, notebooks, exam prep, office supplies, and student stationery.</p>
               <div class="product-meta"><span class="product-price">Study</span><a href="/books" class="card-link" data-service-name="Books Stationery" data-service-path="/books">Open</a></div>
@@ -2392,7 +2756,7 @@
 
             <article class="product-card" style="--card-accent:rgba(180,83,9,0.18);">
               <span class="product-badge">Furniture service</span>
-              <div class="product-media"><img src="https://loremflickr.com/520/380/furniture,chair?lock=3139" alt="Furniture service" loading="lazy"></div>
+              <div class="product-media"><img src="https://tse1.mm.bing.net/th?q=furniture%20chair%20desk%20products&w=520&h=380&c=7&rs=1&p=0&o=5&pid=1.7" alt="Furniture service" loading="lazy"></div>
               <h3>Furniture</h3>
               <p>Chairs, desks, shelves, tables, wardrobes, and compact home setup products.</p>
               <div class="product-meta"><span class="product-price">Home</span><a href="/furniture" class="card-link" data-service-name="Furniture" data-service-path="/furniture">Open</a></div>
@@ -2400,7 +2764,7 @@
 
             <article class="product-card" style="--card-accent:rgba(66,133,244,0.2);">
               <span class="product-badge">Payments service</span>
-              <div class="product-media"><img src="./images/pay.svg" alt="Google Pay" loading="lazy"></div>
+              <div class="product-media"><img src="https://tse1.mm.bing.net/th?q=digital%20payment%20upi%20mobile%20wallet&w=520&h=380&c=7&rs=1&p=0&o=5&pid=1.7" alt="Google Pay" loading="lazy"></div>
               <h3>Google Pay</h3>
               <p>Complete payment and recharge work here, then review those records together on the dashboard below.</p>
               <div class="product-meta"><span class="product-price">Module</span><a href="/googlepay" class="card-link" data-service-name="Google Pay" data-service-path="/googlepay">Open</a></div>
@@ -2502,7 +2866,7 @@
 
     <footer class="footer reveal">
       <div class="logo-google-store">
-        <img src="https://latestlogo.com/wp-content/uploads/2024/01/google-store-logo.png" alt="Google Store Logo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg" alt="Google Store Logo">
       </div>
       <div class="footer-copy">Student-ready multicloud microservices home page with live database-backed activity.</div>
     </footer>
@@ -3223,6 +3587,7 @@
       }, true);
     });
   </script>
+  <script src="/image-fallback.js" defer></script>
   <script src="/session-watchdog.js" defer></script>
 </body>
 </html>

@@ -60,7 +60,7 @@ applyNameMatchedImages();
 const SERVICE_API_QUEUE_KEY = "googleStoreApiQueue";
 const SERVICE_CART_CACHE_KEY = "googleStoreServiceCart";
 const USER_KEY = 'googleStoreUser';
-const ELECTRONICS_IMAGE_FALLBACK = '../images/electronics.svg';
+const ELECTRONICS_IMAGE_FALLBACK = 'https://tse1.mm.bing.net/th?q=electronics%20gadgets%20smart%20devices&w=600&h=400&c=7&rs=1&p=0&o=5&pid=1.7';
 
 const body = document.body;
 const category = body.getAttribute('data-category') || 'electronics';
